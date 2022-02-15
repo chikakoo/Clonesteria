@@ -1,0 +1,21 @@
+.hidden {
+    visibility: hidden;
+}
+
+.nodisp {
+    display: none;
+}
+
+.error {
+    color: red;
+    font-weight: bold;
+}
+
+#gameActiveHeader {
+    display: flex;
+    flex-direction: row;
+}
+
+#gameActiveHeader div {
+    padding-right: 10px;
+}
