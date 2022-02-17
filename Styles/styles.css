@@ -19,3 +19,7 @@
 #gameActiveHeader div {
     padding-right: 10px;
 }
+
+.flex-spacer {
+    flex-grow: 1;
+}

@@ -11,94 +11,60 @@ let Main = {
     isClient: true,
 
     /**
+     * An object representing the player - properties listed below
+     * - type: GHOST or PSYCHIC
+     * - psychics: an object of psychics with the following properties (keyed by an incrementing id)
+     *   - round: 
+     *       Round 1: Suspect
+     *       Round 2: Location
+     *       Round 3: Weapon/Story
+     *       Round 4: Final
+     *   - state: either ghostState or psychicState
+     *   - TODO: what cards to display - vision cards/answer for ghosts, the choices for psychics and ghosts, etc.
+     */
+    player: {},
+
+    /**
+     * The current round - increments on round start
+     * Note that this is for the overall round, not the individual psychic round
+     */
+    currentRound: 0,
+
+    /**
+     * The relevant divs for easy reference - set in this._initializeRelementReferences
+     * _preRoomJoinElement: the username/room screen
+     * _roomLobbyElement: the settings/start game button screen
+     * _gameElement: the main game screen
+     */
+    preRoomJoinElement: null,
+    roomLobbyElement: null,
+    gameElement: null,
+
+    /**
+     * Initial settings of states
+     * These properties will be updated as the game progresses
+     */
+     gameState: States.Game.LOBBY,
+     globalState: 0, // This can either use ghost or psychic, depending on what this player is
+
+    /**
      * Initialize the application
      */
     initialize: function() {
+        this._initializeElementReferences();
+
+        if (Settings.debug.enabled) {
+            this.gameStart(Settings.debug.playerType);
+            return;
+        }
         SocketClient.connect();
         SocketClient.updateRooms();
     },
 
-    /**
-     * Creates and joins the new server room
-     */
-     onCreateRoomClicked: function() {
-        let errorDiv = document.getElementById("errors");
-        hideElement(errorDiv);
-
-        let roomAndUsername = this._getRoomAndUsername();
-        if (!roomAndUsername) {
-            return;
-        }
-
-        SocketClient.createRoom(roomAndUsername.roomName, roomAndUsername.username);
-    },
-
-    /**
-     * Updates the list of rooms to join
-     */
-    updateRoomList: function(roomList) {
-        let roomListDiv = document.getElementById("roomList");
-        roomListDiv.innerHTML = "";
-
-        roomList.forEach(function(roomName) {
-            let roomButton = dce("button");
-            roomButton.innerText = roomName;
-
-            roomButton.onclick = function() {
-                let roomAndUsername = Main._getRoomAndUsername(true);
-                if (!roomAndUsername) {
-                    return;
-                }
-                SocketClient.joinRoom(roomButton.innerText, roomAndUsername.username);
-            }
-            roomListDiv.appendChild(roomButton);
-        });
-    },
-
-    /**
-     * Gets the room and user name - includes showing errors if necessary
-     * @skipRoomName - pass true if you only want the username
-     * @return - the room and username in an object (roomName, username as properties); falsey if there's a problem
-     */
-     _getRoomAndUsername: function(skipRoomName) {
-        let roomName = document.getElementById("inputRoomName").value;
-        if (!roomName && !skipRoomName) {
-            this._showError("Please enter a room name!");
-            return null;
-        }
-
-        let username = document.getElementById("inputUsername").value;
-        if (!username) {
-            this._showError("Please enter a username!");
-            return null;
-        }
-
-        return { roomName: roomName, username: username };
-    },
-
-    /**
-     * Shows an error in the error div
-     * @param error - the error message
-     */
-    _showError: function(error) {
-        let errorDiv = document.getElementById("errors");
-        errorDiv.innerText = error;
-        showElement(errorDiv);
-    },
-
-    /**
-     * Called when a room is joined
-     * @param roomname - the name of the room
-     */
-    onRoomJoined: function(roomName) {
-        Main.roomName = roomName;
-        Main.currentLevel = 1;
-
-        hideElement(document.getElementById("preRoomJoin"));
-        showElement(document.getElementById("roomLobby"));
-        document.getElementById("startGame").setAttribute("disabled", "");
-
-        SocketClient.updateConnectedUsernames();
+    _initializeElementReferences: function() {
+        this.preRoomJoinElement = document.getElementById("preRoomJoin");
+        this.roomLobbyElement = document.getElementById("roomLobby");
+        this.gameElement = document.getElementById("game");
     },
 
     /**
@@ -128,7 +94,44 @@ let Main = {
      * TODO: when images and such are decided, this is where they would be set!
      */
     gameStart: function() {
-        hideElement(document.getElementById("roomLobby"));
-        showElement(document.getElementById("gameActive"));
+        this.player = this._initializePlayer(PlayerType.GHOST); //TODO: grab this from the settings via the lobby instead
+        VisionCardDeck.reset();
+        Choices.reset();
+        this._startRound();
     },
+
+    /**
+     * Initializes the player object to contain its type and the relevant states
+     * TODO: is this even going to be how we do it? seems overengineered...
+     * @returns The player object
+     */
+    _initializePlayer: function(playerType) {
+        let round = Settings.debug.enabled ? Settings.debug.startingRound : 1
+
+        // Initial state - 
+        // Ghosts start by sending
+        // Psychics start by waiting
+        let psychics = playerType == PlayerType.GHOST 
+            ? {
+                0: { state: States.Ghost.SENDING, round: round },
+                1: { state: States.Ghost.SENDING, round: round }
+            }
+            : {
+                0: { state: States.Psychic.WAITING, round: round },
+                1: { state: States.Psychic.WAITING, round: round }
+            }
+
+        return {
+            type: playerType,
+            psychics: psychics
+        };
+    },
+
+    /**
+     * Starts the round
+     */
+    _startRound: function() {
+        this.currentRound++;
+        GameUI.startRound(this.currentRound);
+    }
 };

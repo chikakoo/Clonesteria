@@ -28,7 +28,7 @@ SocketClient = {
          */
         this._socket.on('room_created', function(roomName) {
             Main.isClient = false;
-            Main.onRoomJoined(roomName);
+            RoomManager.onRoomJoined(roomName);
         });
 
         /**
@@ -37,14 +37,14 @@ SocketClient = {
          */
         this._socket.on('room_joined', function(roomName) {
             Main.isClient = true;
-            Main.onRoomJoined(roomName);
+            RoomManager.onRoomJoined(roomName);
         });
 
         /**
          * Updates the list of rooms to join
          */
         this._socket.on('update_rooms', function(rooms) {
-            Main.updateRoomList(rooms);
+            RoomManager.updateRoomList(rooms);
         });
 
         /**

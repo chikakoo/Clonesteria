@@ -1,0 +1,99 @@
+#topBar {
+    display: flex;
+    flex-direction: row;
+}
+
+#psychicContainer {
+    display: flex;
+    flex-direction: row;
+}
+
+#psychicContainer > .psychic-button {
+    width: 50px;
+    height: 50px;
+    border: 1px solid black;
+    color: white;
+    background: black;
+}
+
+#psychicContainer > .psychic-button.selected-psychic {
+    border: 1px solid green;
+    color: black;
+    background: green;
+}
+
+#rerolls {
+    float: right;
+    border: 1px solid black;
+    margin-right: 10px;
+    width: 50px;
+    height: 50px;
+}
+
+#middleContainer {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 420px;
+}
+
+#choiceDisplay, #visionCardDisplay {
+    border: 3px solid black;
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    height: 400px;
+}
+
+#choiceDisplay {
+    width: 500px;
+    margin-right: 5px;
+}
+
+#visionCardDisplay {
+    width: 300px;
+}
+
+#visionCards {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    width: 350px;
+    height: 100%;
+}
+
+#visionCards > .vision-card {
+    margin: 3px;
+    width: 100px;
+    height: 125px;
+    border: 2px solid black;
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+}
+
+#choices {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+#choices > .choice {
+    margin: 3px;
+    width: 220px;
+    height: 176px;
+    border: 5px solid black;
+    flex-shrink: 0;
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+}
+
+#choices > .choice.choice-answer {
+    border-color: green;
+}

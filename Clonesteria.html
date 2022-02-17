@@ -7,10 +7,17 @@
         <script type="text/javascript" src="Javascript/settings.js"></script>
         <script type="text/javascript" src="Javascript/helpers.js"></script>
         <script type="text/javascript" src="Javascript/random.js"></script>
+        <script type="text/javascript" src="Javascript/states.js"></script>
         <script type="text/javascript" src="Javascript/socketClient.js"></script>
+        <script type="text/javascript" src="Javascript/roomManager.js"></script>
         <script type="text/javascript" src="Javascript/main.js"></script>
+        <script type="text/javascript" src="Javascript/Data/visionCardDeck.js"></script>
+        <script type="text/javascript" src="Javascript/Data/visionCardHistory.js"></script>
+        <script type="text/javascript" src="Javascript/Data/choices.js"></script>
+        <script type="text/javascript" src="Javascript/UI/gameUI.js"></script>
         <!-- <link rel="icon" href="" type="image/icon type"> -->
         <link rel="stylesheet" href="Styles/styles.css">
+        <link rel="stylesheet" href="Styles/gameUI.css">
 	</head>
 
         <body oncontextmenu="return false" onload="Main.initialize()">
@@ -20,7 +27,7 @@
                                 <input id="inputUsername" type="text" placeholder="Username" />
                         </div>
                         <input id="inputRoomName" type="text" placeholder="Room name" />
-                        <button id="create" onclick="Main.onCreateRoomClicked()">Create</button>
+                        <button id="create" onclick="RoomManager.onCreateRoomClicked()">Create</button>
 
                         <div id="roomListContainer">
                                 <div>Room List - Click to join</div>
@@ -33,8 +40,20 @@
                         <button id="startGame" onclick="Main.onStartGameClicked()">Start</button>
                 </div>
 
-                <div id="gameActive" class="nodisp">
-                        Game active
+                <div id="game" class="nodisp">
+                        <div id="topBar">
+                                <div id="psychicContainer"></div>
+                                <div class="flex-spacer"></div>
+                                <div id="rerolls"></div>
+                        </div>
+                        
+                        <div id="middleContainer">
+                                <div id="choiceDisplay"></div>
+                                <div id="visionCardDisplay"></div>
+                                <div id="visionCards"></div>
+                        </div>
+
+                        <div id="choices"></div>
                 </div>
         </body>
 </html>

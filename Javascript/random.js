@@ -68,7 +68,7 @@ let Random = {
 
     /**
      * Gets a set of random values from an array
-     * Returns the minimum amoun if the number passed if more than the array has to offer
+     * Returns the minimum amount if the number passed if more than the array has to offer
      * @param array - the array
      * @param randomValues - the random values
      */

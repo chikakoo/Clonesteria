@@ -1,0 +1,61 @@
+States: 
+
+Ghost
+-------
+States per psychic to send to -
+
+SENDING:
+- Able to send visions to the psychics they haven't sent to yet
+- CANNOT send visions to psychics they've sent to this round
+
+SENT:
+- Can't do anything - just waiting for the psychics to finish up
+
+
+Global states (sent across the server) -
+----------
+ACTIVE - the ghost still has more psychics to send to
+INACTIVE - the ghost is done and cannot do anything
+
+
+Psychic
+--------
+Note that this is PER PSYCHIC - the player may be controlling more than one of them, 
+each potentially in a different state.
+
+WAITING:
+- Have no visions currently - can't do anything except look at the images
+
+CHOOSING:
+- Received visions from the ghost, and can now guess the answer
+
+CHOSEN:
+- Done choosing, waiting for the round to end
+
+
+Global states (sent across the server) -
+----------
+ACTIVE - there are psychics that are not yet done
+INACTIVE - the psychics are all done choosing stuff
+
+
+
+Game states
+------------
+LOBBY - the screen before you join a room
+
+PRE_GAME - shows the settings screen
+> When you join a room, you are in this state
+> Also triggered after GAME_END
+
+ROUND_ACTIVE - the round is active; ghosts are sending visions/psychics are guessing
+ROUND_END - the round ended
+> Triggered when both the ghost and psychic are in the INACTIVE state
+> Shows the results of the round (did the psychics guess right?)
+> Starts the next round (or the FINAL_ROUND_ACTIVE state)
+
+FINAL_ROUND_ACTIVE - the final round is active
+> Triggered in ROUND_END if all psychics are done with the main game
+GAME_END - the game is over, show some statistics and whether the game was won
+> Triggered after FINAL_ROUND_ACTIVE
+> Allow a new game to begin by switching to the PRE_GAME state
