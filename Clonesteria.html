@@ -14,13 +14,24 @@
         <script type="text/javascript" src="Javascript/Data/visionCardDeck.js"></script>
         <script type="text/javascript" src="Javascript/Data/visionCardHistory.js"></script>
         <script type="text/javascript" src="Javascript/Data/choices.js"></script>
+        <script type="text/javascript" src="Javascript/Data/choiceHistory.js"></script>
+        <script type="text/javascript" src="Javascript/UI/modalPopup.js"></script>
         <script type="text/javascript" src="Javascript/UI/gameUI.js"></script>
+        <script type="text/javascript" src="Javascript/UI/reroll.js"></script>
         <!-- <link rel="icon" href="" type="image/icon type"> -->
         <link rel="stylesheet" href="Styles/styles.css">
+        <link rel="stylesheet" href="Styles/modalPopup.css">
         <link rel="stylesheet" href="Styles/gameUI.css">
 	</head>
 
         <body oncontextmenu="return false" onload="Main.initialize()">
+                <div id="modalScreen" class="nodisp">
+                        <div id="modalPopup" class="nodisp">
+                                <div id="modalDescription"></div>
+                                <div id="modalButtonContainer"></div>
+                        </div>
+                </div>
+
                 <div id="preRoomJoin">
                         <div id="errors" class="error nodisp"></div>
                         <div id="usernameContainer">
@@ -43,8 +54,14 @@
                 <div id="game" class="nodisp">
                         <div id="topBar">
                                 <div id="psychicContainer"></div>
+                                <div id="sendVisionCardsButton" onclick="GameUI.onSendVisionCardsClicked()" class="nodisp">
+                                        Send Cards
+                                </div>
+                                <div id="sendChoiceButton" onclick="GameUI.onSendChoiceClicked()" class="nodisp">
+                                        Send Choice
+                                </div>
                                 <div class="flex-spacer"></div>
-                                <div id="rerolls"></div>
+                                <div id="rerolls" onclick="Reroll.onRerollClicked()"></div>
                         </div>
                         
                         <div id="middleContainer">

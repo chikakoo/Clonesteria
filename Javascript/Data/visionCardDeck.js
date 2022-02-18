@@ -30,15 +30,19 @@ let VisionCardDeck = {
     /**
      * Replaces the given card ids and gets new cards from the deck
      * @param {Array<Number>} cardIdsToReplace - Uses the given card ids
+     * @return An array of the card objects replaced, containing the url of the card - used for card history
      */
     replaceCards: function(cardIdsToReplace) {
         // Remove cards from the currentCards array and add them to usedCards
         let newCurrentCards = [];
+        let removedCards = [];
+        let _this = this;
         this.currentCards.forEach(function(card) {
             if (!cardIdsToReplace.includes(card.id)) {
-                newCurrentCards = cardIdsToReplace;
+                newCurrentCards.push(card);
             } else {
-                usedCards.push(card);
+                _this.usedCards.push(card);
+                removedCards.push({ url: card.url });
             }
         });
 
@@ -48,6 +52,8 @@ let VisionCardDeck = {
         for (let i = 0; i < cardIdsToReplace.length; i++) {
             this.currentCards.push(this._getNextCardFromDeck());
         }
+
+        return removedCards;
     },
 
     /**

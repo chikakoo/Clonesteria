@@ -7,11 +7,35 @@
     PSYCHIC: 1
 }
 
+let StaticImages = [
+    "https://wallpaperaccess.com/full/154009.jpg",
+    "https://www.wikihow.com/images/thumb/b/b5/Write-a-Business-Letter-Step-1-Version-5.jpg/aid95752-v4-728px-Write-a-Business-Letter-Step-1-Version-5.jpg"
+];
+
 let Settings = {
     debug: {
         enabled: true,
         playerType: PlayerType.GHOST,
-        startingRound: 1 // 0-indexed (0 = suspect; 1 = location; 2 = weapon/story; 3 = final)
+        //playerType: PlayerType.PSYCHIC,
+        startingRound: 1, // (1 = suspect; 2 = location; 3 = weapon/story; 4 = final)
+        startingVisionCardHistory: {
+            // 0: { // psychic id
+            //     1: { // round
+            //         1: [ // attempt
+            //             { url: StaticImages[0] }, 
+            //             { url: StaticImages[1] }
+            //         ],
+            //         2: [{ url: StaticImages[0] }]
+            //     }
+            // }
+        },
+        startingChoiceHistory: {
+            // 0: { // psychic id
+            //     1: [ // round
+            //         0, 3 // Ids already chosen
+            //     ] 
+            // }
+        }
     },
     numberOfRerolls: 3,
     numberOfVisionCards: 8,
@@ -19,8 +43,3 @@ let Settings = {
     visionCardDeckSize: 100,
     useStories: false // As opposed to weapons
 };
-
-let StaticImages = [
-    "https://wallpaperaccess.com/full/154009.jpg",
-    "https://www.wikihow.com/images/thumb/b/b5/Write-a-Business-Letter-Step-1-Version-5.jpg/aid95752-v4-728px-Write-a-Business-Letter-Step-1-Version-5.jpg"
-];

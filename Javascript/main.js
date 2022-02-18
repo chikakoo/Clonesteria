@@ -85,18 +85,27 @@ let Main = {
      * Called when the host starts the game
      */
     onStartGameClicked: function() {
-        SocketClient.gameStart();
-        this.gameStart();
+        SocketClient.gameStart(); // TODO: pass the playerType in
+        this.gameStart(PlayerType.GHOST); // TODO: grab the playertype from the settings
     },
 
     /**
      * Starts the game
-     * TODO: when images and such are decided, this is where they would be set!
+     * TODO: when images and such are decided, this is where they would be set/sent across!
      */
-    gameStart: function() {
-        this.player = this._initializePlayer(PlayerType.GHOST); //TODO: grab this from the settings via the lobby instead
+    gameStart: function(playerType) {
+        this.player = this._initializePlayer(playerType); 
+        VisionCardHistory.reset();
         VisionCardDeck.reset();
+        ChoiceHistory.reset();
         Choices.reset();
+        Reroll.reset();
+
+        if (Settings.debug.enabled) {
+            VisionCardHistory.history = Settings.debug.startingVisionCardHistory;
+            ChoiceHistory.history = Settings.debug.startingChoiceHistory;
+        }
+
         this._startRound();
     },
 

@@ -1,0 +1,35 @@
+#modalScreen {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background: black;
+    background:rgba(0, 0, 0, 0.7);
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 100;
+}
+
+#modalPopup {
+    border: 3px solid black;
+    padding: 10px;
+    background-color: gray;
+}
+
+#modalButtonContainer {
+    display: flex;
+    justify-content: center;
+    margin-top: 4px;
+}
+
+#modalButtonContainer > button:not(:last-child) {
+    margin-right: 5px;
+}
+
+.aboveModal {
+    z-index: 101;
+}

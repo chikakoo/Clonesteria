@@ -1,9 +1,9 @@
 .hidden {
-    visibility: hidden;
+    visibility: hidden !important;
 }
 
 .nodisp {
-    display: none;
+    display: none !important;
 }
 
 .error {
