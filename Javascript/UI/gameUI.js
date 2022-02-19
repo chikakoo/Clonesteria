@@ -74,18 +74,20 @@ let GameUI = {
      */
     _initializePsychicContainer: function() {
         let psychicContainer = document.getElementById("psychicContainer");
+        psychicContainer.innerHTML = "";
+
         let _this = this;
         Object.keys(Main.player.psychics).forEach(function psychicIds(id) {
             let psychicButton = dce("div", "psychic-button");
             psychicButton.id = _this._getIdForPsychic(id);
-            psychicButton.innerText = id; //TODO: use an image instead of this text!
+            psychicButton.innerText = Number(id) + 1;
             psychicButton.onclick = function() {
                 if (_this.selectedPsychicId !== id) {
                     _this.selectedPsychicId = id;
-                    _this._initializeUIForSelectedPsychic();
+                    _this.refreshPsychicUI();
                 }
-            };
-
+            }
+            
             psychicContainer.appendChild(psychicButton);
         });
     },
@@ -103,7 +105,7 @@ let GameUI = {
      * Initializes the UI for the selected psychic
      */
     _initializeUIForSelectedPsychic: function() {
-        this._refreshPsychicUI();
+        this.refreshPsychicUI();
         this._initializeVisionCards();
         this.refreshChoices();
     },
@@ -111,17 +113,39 @@ let GameUI = {
     /**
      * Refresh the styles so that the currently selected psychic shows up correctly
      */
-    _refreshPsychicUI: function() {
+    refreshPsychicUI: function() {
         let _this = this;
         Object.keys(Main.player.psychics).forEach(function psychicIds(id) {
             let elementId = _this._getIdForPsychic(id);
             let psychicButton = document.getElementById(elementId);
 
+            _this._setPsychicImage(psychicButton, Main.player.psychics[id].state);
             removeCssClass(psychicButton, "selected-psychic");
             if (_this.selectedPsychicId === id) {
                 addCssClass(psychicButton, "selected-psychic");
             }
         });
+    },
+
+    /**
+     * Sets the psychic image for the given button, based on the given state
+     * @param {HTMLElement} psychicButton - the button to set the image on
+     */
+    _setPsychicImage: function(psychicButton, state) {
+        let classToAdd = "";
+        switch(state) {
+            case States.Rounds.PRE_VISION:
+                classToAdd = "pre-vision";
+                break;
+            case States.Rounds.POST_VISION:
+                classToAdd = "post-vision";
+                break;
+            case States.Rounds.POST_ANSWER:
+                classToAdd = "post-answer";
+                break;
+        }
+
+        addCssClass(psychicButton, classToAdd);
     },
 
     /**
@@ -442,10 +466,9 @@ let GameUI = {
             return;
         }
 
-
         let round = Main.player.psychics[this.selectedPsychicId].round;
         ChoiceHistory.add(this.selectedPsychicId, round, this._selectedAnswer.id)
-        //TODO: socket call here with the above info to send to the ghost so their history can be updated as well
+        SocketClient.sendChoiceToGhost(this.selectedPsychicId, round, this._selectedAnswer.id);
 
         this.cardsSent[this.selectedPsychicId] = true;
         this._selectedAnswer = null;

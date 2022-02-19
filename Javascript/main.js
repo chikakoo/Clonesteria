@@ -41,13 +41,6 @@ let Main = {
     gameElement: null,
 
     /**
-     * Initial settings of states
-     * These properties will be updated as the game progresses
-     */
-     gameState: States.Game.LOBBY,
-     globalState: 0, // This can either use ghost or psychic, depending on what this player is
-
-    /**
      * Initialize the application
      */
     initialize: function() {
@@ -85,9 +78,16 @@ let Main = {
      * Called when the host starts the game
      */
     onStartGameClicked: async function() {
+        //TODO: move these resets to a post-game place
+        VisionCardHistory.reset();
+        await VisionCardDeck.reset();
+        ChoiceHistory.reset();
+        Choices.reset();
+        Reroll.reset();
+
         let playerType = this.isClient ? PlayerType.PSYCHIC : PlayerType.GHOST;
         let otherPlayerType = !this.isClient ? PlayerType.PSYCHIC : PlayerType.GHOST;
-        SocketClient.gameStart(otherPlayerType);
+        SocketClient.gameStart(otherPlayerType, Choices.choices);
         await this.gameStart(playerType); // TODO: grab the playerTypes from the settings instead
     },
 
@@ -97,13 +97,13 @@ let Main = {
      */
     gameStart: async function(playerType) {
         this.player = this._initializePlayer(playerType); 
-        VisionCardHistory.reset();
-        await VisionCardDeck.reset();
-        ChoiceHistory.reset();
-        Choices.reset();
-        Reroll.reset();
 
         if (Settings.debug.enabled) {
+            VisionCardHistory.reset();
+            await VisionCardDeck.reset();
+            ChoiceHistory.reset();
+            Choices.reset();
+            Reroll.reset();
             VisionCardHistory.history = Settings.debug.startingVisionCardHistory;
             ChoiceHistory.history = Settings.debug.startingChoiceHistory;
         }
@@ -113,29 +113,41 @@ let Main = {
 
     /**
      * Initializes the player object to contain its type and the relevant states
-     * TODO: is this even going to be how we do it? seems overengineered...
+     * @param {Number} playerType - the player type
      * @returns The player object
      */
     _initializePlayer: function(playerType) {
         let round = Settings.debug.enabled ? Settings.debug.startingRound : 1
-
-        // Initial state - 
-        // Ghosts start by sending
-        // Psychics start by waiting
-        let psychics = playerType == PlayerType.GHOST 
-            ? {
-                0: { state: States.Ghost.SENDING, round: round },
-                1: { state: States.Ghost.SENDING, round: round }
-            }
-            : {
-                0: { state: States.Psychic.WAITING, round: round },
-                1: { state: States.Psychic.WAITING, round: round }
-            }
-
         return {
             type: playerType,
-            psychics: psychics
+            psychics: this._createPsychicObject(round)
         };
+    },
+
+    /**
+     * Creates the psychic object based on the number of psychics to create
+     * @param {Number} round - the round to start the psychics at
+     * @returns The created psychic object
+     */
+    _createPsychicObject: function(round) {
+        let psychicContainer = {};
+        for (let i = 0; i < Settings.numberOfPsychics; i++) {
+            psychicContainer[i] = { 
+                state: States.Rounds.PRE_VISION,
+                round: round 
+            };
+        }
+        return psychicContainer;
+    }, 
+
+    /**
+     * Sets the psychic state and updates the visual
+     * @param {Number} psychicId - the id
+     * @param {Number} state  -the state to set to
+     */
+    setPsychicState: function(psychicId, state) {
+        this.player.psychics[psychicId].state = state;
+        GameUI.refreshPsychicUI();
     },
 
     /**

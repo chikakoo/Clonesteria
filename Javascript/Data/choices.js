@@ -97,7 +97,7 @@ let Choices = {
      */
     _assignAnswers: function() {
         let _this = this;
-        let numberOfPsychics = Object.keys(Main.player.psychics).length;
+        let numberOfPsychics = Settings.numberOfPsychics;
         Object.keys(this.choices).forEach(function(roundNumber) {
             let choicesForRound = _this.choices[roundNumber];
             let answers = Random.getRandomValuesFromArray(choicesForRound, numberOfPsychics);

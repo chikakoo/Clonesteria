@@ -69,11 +69,10 @@
  
      /**
       * Called when the game starts
-      * TODO: Probably pass the state of all of the images, etc
       */
-     client.on('game_start', function(roomName, playerType) {
+     client.on('game_start', function(roomName, playerType, choices) {
          console.log(`Game starting for room: ${roomName}`);
-         client.to(roomName).broadcast.emit('game_start', playerType);
+         client.to(roomName).broadcast.emit('game_start', playerType, choices);
      });
 
     // ---- Ghost communicating with Psychic ---- //

@@ -56,9 +56,11 @@ SocketClient = {
 
         /**
          * Only called on the non-host, since the host's version will be called already
+         * Syncs up the choices for the game as well as passes in the correct player type
          */
-        this._socket.on('game_start', async function(playerType) {
+        this._socket.on('game_start', async function(playerType, choices) {
             console.log(`Game starting as player type: ${playerType}`);
+            Choices.choices = choices;
             await Main.gameStart(playerType);
         });
 
@@ -115,11 +117,12 @@ SocketClient = {
 
     /**
      * Starts the game - uses the properties set in Main
-     * @param otherPlayerType - the type of player to make the other player (only the host will call this)
+     * @param {Number} otherPlayerType - the type of player to make the other player (only the host will call this)
+     * @param {Array<Any>} choices - the set of choices that both players will be seeing for each round
      */
-    gameStart: function(otherPlayerType) {
+    gameStart: function(otherPlayerType, choices) {
         if (this._socket) {
-            this._socket.emit("game_start", Main.roomName, otherPlayerType);
+            this._socket.emit("game_start", Main.roomName, otherPlayerType, choices);
         }
     },
 
@@ -139,9 +142,9 @@ SocketClient = {
     },
 
     // ---- Psychic communicating with Ghost ---- //
-    sendChoiceToGhost: function() {
+    sendChoiceToGhost: function(psychicId, round, choiceId) {
         if (this._socket && Main.player.type === PlayerType.PSYCHIC) {
-            this._socket.emit("send_choice_to_ghost"); //TODO: not done yet!!!
+            this._socket.emit("send_choice_to_ghost", Main.roomName, psychicId, round, choiceId); //TODO: not done yet!!!
         }
     }
 };
