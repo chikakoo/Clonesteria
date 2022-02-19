@@ -57,10 +57,19 @@ SocketClient = {
         /**
          * Only called on the non-host, since the host's version will be called already
          */
-        this._socket.on('game_start', function() {
-            console.log("Game starting!");
-            Main.gameStart();
+        this._socket.on('game_start', function(playerType) {
+            console.log(`Game starting as player type: ${playerType}`);
+            Main.gameStart(playerType);
         });
+
+        // ---- Psychic receiving messages from ghost ---- //
+        this._socket.on('receive_visions_from_psychic', function(psychicId, round, attempt, visions) {
+            VisionCardHistory.add(psychicId, round, attempt, visions);
+            GameUI.refreshVisionCardsForPsychic(Main.roomName, psychicId, round, attempt, visions);
+            //TODO: AND enable them to send cards... well they have to be disabled first!
+        });
+
+        // ---- Ghost receiving messages from psychic ---- //
     },
 
     /**
@@ -106,10 +115,33 @@ SocketClient = {
 
     /**
      * Starts the game - uses the properties set in Main
+     * @param otherPlayerType - the type of player to make the other player (only the host will call this)
      */
-    gameStart: function() {
+    gameStart: function(otherPlayerType) {
         if (this._socket) {
-            this._socket.emit("game_start", Main.roomName);
+            this._socket.emit("game_start", Main.roomName, otherPlayerType);
+        }
+    },
+
+    // ---- Ghost communicating with Psychic ---- //
+
+    /**
+     * Sends vision cards to the psychic
+     * @param {Number} psychicId - the psychic ID to send to
+     * @param {Number} round - the round
+     * @param {Number} attempt - the attempt number
+     * @param {Array<Any>} cardsToSend - An array of the card objects (contains a url property) to send over
+     */
+    sendVisionsToPsychic: function(psychicId, round, attempt, visions) {
+        if (this._socket && Main.player.type === PlayerType.GHOST) {
+            this._socket.emit("send_visions_to_psychic", Main.roomName, psychicId, round, attempt, visions);
+        }
+    },
+
+    // ---- Psychic communicating with Ghost ---- //
+    sendChoiceToGhost: function() {
+        if (this._socket && Main.player.type === PlayerType.PSYCHIC) {
+            this._socket.emit("send_choice_to_ghost"); //TODO: not done yet!!!
         }
     }
 };

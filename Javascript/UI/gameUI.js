@@ -403,8 +403,9 @@ let GameUI = {
         hideElement(document.getElementById("sendVisionCardsButton"));
         
         let round = Main.player.psychics[this.selectedPsychicId].round;
-        VisionCardHistory.add(this.selectedPsychicId, round, this._attempt[this.selectedPsychicId], cardsToSend);
-        //TODO: socket call to give the above data to the psychic, so they can add it to the history as well and refresh their page
+        let attempt = this._attempt[this.selectedPsychicId]
+        VisionCardHistory.add(this.selectedPsychicId, round, attempt, cardsToSend);
+        SocketClient.sendVisionsToPsychic(this.selectedPsychicId, round, attempt, cardsToSend);
 
         this._attempt[this.selectedPsychicId]++; //TODO: move this to a more general place, like when the attempt actually advances?
         this.refreshVisionCardsForGhost();

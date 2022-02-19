@@ -71,10 +71,18 @@
       * Called when the game starts
       * TODO: Probably pass the state of all of the images, etc
       */
-     client.on('game_start', function(roomName) {
+     client.on('game_start', function(roomName, playerType) {
          console.log(`Game starting for room: ${roomName}`);
-         client.to(roomName).broadcast.emit('game_start');
+         client.to(roomName).broadcast.emit('game_start', playerType);
      });
+
+    // ---- Ghost communicating with Psychic ---- //
+    client.on('send_visions_to_psychic', function(roomName, psychicId, round, attempt, visions) {
+        console.log(`Recevied visions from psychic, ID|Round|Attempt|Count: ${psychicId}|${round}|${attempt}|${visions.length}`);
+        client.to(roomName).broadcast.emit('receive_visions_from_psychic', psychicId, round, attempt, visions);
+    });
+
+    // ---- Psychic communicating with Ghost ---- //
  });
  
  /**

@@ -85,8 +85,10 @@ let Main = {
      * Called when the host starts the game
      */
     onStartGameClicked: function() {
-        SocketClient.gameStart(); // TODO: pass the playerType in
-        this.gameStart(PlayerType.GHOST); // TODO: grab the playertype from the settings
+        let playerType = this.isClient ? PlayerType.PSYCHIC : PlayerType.GHOST;
+        let otherPlayerType = !this.isClient ? PlayerType.PSYCHIC : PlayerType.GHOST;
+        SocketClient.gameStart(otherPlayerType);
+        this.gameStart(playerType); // TODO: grab the playerTypes from the settings instead
     },
 
     /**
