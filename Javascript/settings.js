@@ -37,6 +37,7 @@ let Settings = {
             // }
         }
     },
+    useStaticImages: true,
     numberOfRerolls: 3,
     numberOfVisionCards: 8,
     numberOfChoices: 5,
