@@ -68,6 +68,8 @@ SocketClient = {
         this._socket.on('receive_visions_from_psychic', function(psychicId, round, attempt, visions) {
             VisionCardHistory.add(psychicId, round, attempt, visions);
             GameUI.refreshVisionCardsForPsychic(Main.roomName, psychicId, round, attempt, visions);
+            Main.setPsychicState(psychicId, States.Rounds.POST_VISION);
+
             //TODO: AND enable them to send cards... well they have to be disabled first!
         });
 

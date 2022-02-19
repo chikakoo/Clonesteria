@@ -84,7 +84,7 @@ let GameUI = {
             psychicButton.onclick = function() {
                 if (_this.selectedPsychicId !== id) {
                     _this.selectedPsychicId = id;
-                    _this.refreshPsychicUI();
+                    _this._initializeUIForSelectedPsychic();
                 }
             }
             
@@ -431,6 +431,7 @@ let GameUI = {
         VisionCardHistory.add(this.selectedPsychicId, round, attempt, cardsToSend);
         SocketClient.sendVisionsToPsychic(this.selectedPsychicId, round, attempt, cardsToSend);
 
+        Main.setPsychicState(this.selectedPsychicId, States.Rounds.POST_VISION);
         this._attempt[this.selectedPsychicId]++; //TODO: move this to a more general place, like when the attempt actually advances?
         this.refreshVisionCardsForGhost();
     },
