@@ -57,9 +57,9 @@ SocketClient = {
         /**
          * Only called on the non-host, since the host's version will be called already
          */
-        this._socket.on('game_start', function(playerType) {
+        this._socket.on('game_start', async function(playerType) {
             console.log(`Game starting as player type: ${playerType}`);
-            Main.gameStart(playerType);
+            await Main.gameStart(playerType);
         });
 
         // ---- Psychic receiving messages from ghost ---- //
