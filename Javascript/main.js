@@ -84,21 +84,21 @@ let Main = {
     /**
      * Called when the host starts the game
      */
-    onStartGameClicked: function() {
+    onStartGameClicked: async function() {
         let playerType = this.isClient ? PlayerType.PSYCHIC : PlayerType.GHOST;
         let otherPlayerType = !this.isClient ? PlayerType.PSYCHIC : PlayerType.GHOST;
         SocketClient.gameStart(otherPlayerType);
-        this.gameStart(playerType); // TODO: grab the playerTypes from the settings instead
+        await this.gameStart(playerType); // TODO: grab the playerTypes from the settings instead
     },
 
     /**
      * Starts the game
      * TODO: when images and such are decided, this is where they would be set/sent across!
      */
-    gameStart: function(playerType) {
+    gameStart: async function(playerType) {
         this.player = this._initializePlayer(playerType); 
         VisionCardHistory.reset();
-        VisionCardDeck.reset();
+        await VisionCardDeck.reset();
         ChoiceHistory.reset();
         Choices.reset();
         Reroll.reset();

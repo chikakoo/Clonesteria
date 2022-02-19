@@ -11,17 +11,17 @@ let VisionCardDeck = {
      * Resets the deck and creates a new one
      * Should only be calld when starting a new game completely
      */
-    reset: function() {
+    reset: async function() {
         this.deck = [];
         this.currentCards = [];
-        this.initialize();
+        await this.initialize();
     },
 
     /**
      * Initializes the deck and deals out the initial set of cards
      */
-    initialize: function() {
-        this.deck = this._getImageData(Settings.visionCardDeckSize);
+    initialize: async function() {
+        this.deck = await this._getImageData();
         for (let i = 0; i < Settings.numberOfVisionCards; i++) {
             this.currentCards.push(this.deck.pop());
         }
@@ -72,14 +72,9 @@ let VisionCardDeck = {
     /**
      * TODO: call some sort of API to get these images instead
      */
-    _getImageData: function(numberOfImages) {
-        let imageData = [];
-        for (let i = 0; i < numberOfImages; i++) {
-            imageData.push({
-                id: i,
-                url: Random.getRandomValueFromArray(StaticImages)
-            });
-        }
-        return imageData.shuffle();
+    _getImageData: async function() {
+
+        return await UnsplashAPI.getVisionCardImages();
+
     }
 };
