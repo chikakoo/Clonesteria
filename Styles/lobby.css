@@ -1,0 +1,25 @@
+#playerTypeSelection {
+    display: flex;
+    flex-direction: row;
+}
+
+#playerTypeSelection > div {
+    border: 2px solid black;
+    background-color: lightgray;
+    color: gray;
+    padding: 3px;
+}
+
+#playerTypeSelection > div.type-selected {
+    border: 2px solid black;
+    background-color: greenyellow;
+    color: black;
+}
+
+#playerTypeSelection > div:hover {
+    color: black;
+}
+
+#playerTypeSelection > div:not(.type-selected):hover {
+    color: gray;
+}

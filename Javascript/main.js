@@ -85,10 +85,8 @@ let Main = {
         Choices.reset();
         Reroll.reset();
 
-        let playerType = this.isClient ? PlayerType.PSYCHIC : PlayerType.GHOST;
-        let otherPlayerType = !this.isClient ? PlayerType.PSYCHIC : PlayerType.GHOST;
-        SocketClient.gameStart(otherPlayerType, Choices.choices);
-        await this.gameStart(playerType); // TODO: grab the playerTypes from the settings instead
+        SocketClient.gameStart(Lobby.getOtherPlayerType(), Choices.choices);
+        await this.gameStart(Lobby.selectedPlayerType);
     },
 
     /**

@@ -66,6 +66,14 @@
      client.on('update_connected_usernames', function(roomName) {
          client.emit("update_connected_usernames", getConnectedUsernames(roomName));
      });
+
+     client.on('send_player_type', function(roomName, playerType) {
+        client.to(roomName).broadcast.emit('receive_player_type', playerType);
+     });
+     
+     client.on('get_player_type', function(roomName) {
+        client.to(roomName).broadcast.emit('send_player_type');
+     });
  
      /**
       * Called when the game starts

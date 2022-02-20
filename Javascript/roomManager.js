@@ -77,6 +77,7 @@ let RoomManager = {
     onRoomJoined: function(roomName) {
         Main.roomName = roomName;
         Main.currentLevel = 1;
+        Lobby.initialize();
 
         hideElement(document.getElementById("preRoomJoin"));
         showElement(document.getElementById("roomLobby"));

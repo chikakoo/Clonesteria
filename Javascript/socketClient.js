@@ -55,6 +55,21 @@ SocketClient = {
         });
 
         /**
+         * Receive the player type from the host and refresh the lobby accordingly
+         */
+        this._socket.on('receive_player_type', function(playerType) {
+            Lobby.selectedPlayerType = playerType;
+            Lobby.refreshPlayerTypeUI();
+        });
+
+        /**
+         * This will be called by the host - simply call to send the player type
+         */
+        this._socket.on('send_player_type', function() {
+            SocketClient.sendPlayerType(Lobby.getOtherPlayerType());
+        });
+
+        /**
          * Only called on the non-host, since the host's version will be called already
          * Syncs up the choices for the game as well as passes in the correct player type
          */
@@ -127,6 +142,26 @@ SocketClient = {
     updateConnectedUsernames: function() {
         if (this._socket) {
             this._socket.emit("update_connected_usernames", Main.roomName);
+        }
+    },
+
+    /**
+     * Sends the player type to the client
+     * TODO eventually: make it behave correctly with multiple clients
+     * @param {Number} - the player type to set the other players to
+     */
+    sendPlayerType: function(playerType) {
+        if (this._socket) {
+            this._socket.emit("send_player_type", Main.roomName, playerType);
+        }
+    },
+
+    /**
+     * Gets the player type from the ghost
+     */
+    getPlayerType: function() {
+        if (this._socket) {
+            this._socket.emit("get_player_type", Main.roomName);
         }
     },
 

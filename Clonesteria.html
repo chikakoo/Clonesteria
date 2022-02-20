@@ -13,6 +13,7 @@
         <script type="text/javascript" src="Javascript/socketClient.js"></script>
         <script type="text/javascript" src="Javascript/roomManager.js"></script>
         <script type="text/javascript" src="Javascript/main.js"></script>
+        <script type="text/javascript" src="Javascript/lobby.js"></script>
         <script type="text/javascript" src="Javascript/Data/visionCardDeck.js"></script>
         <script type="text/javascript" src="Javascript/Data/visionCardHistory.js"></script>
         <script type="text/javascript" src="Javascript/Data/choices.js"></script>
@@ -22,6 +23,7 @@
         <script type="text/javascript" src="Javascript/UI/reroll.js"></script>
         <!-- <link rel="icon" href="" type="image/icon type"> -->
         <link rel="stylesheet" href="Styles/styles.css">
+        <link rel="stylesheet" href="Styles/lobby.css">
         <link rel="stylesheet" href="Styles/modalPopup.css">
         <link rel="stylesheet" href="Styles/gameUI.css">
 	</head>
@@ -51,6 +53,14 @@
                 <div id="roomLobby" class="nodisp">
                         <div id="playerList"></div>
                         <button id="startGame" onclick="Main.onStartGameClicked()">Start</button>
+                        <div id="playerTypeSelection">
+                                <div id="ghostSelection" onclick="Lobby.onPlayerTypeSelected(event, PlayerType.GHOST)">
+                                        Ghost
+                                </div>
+                                <div id="psychicSelection" onclick="Lobby.onPlayerTypeSelected(event, PlayerType.PSYCHIC)">
+                                        Psychic
+                                </div>
+                        </div>
                 </div>
 
                 <div id="game" class="nodisp">
