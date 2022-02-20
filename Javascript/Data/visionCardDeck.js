@@ -1,9 +1,9 @@
 /**
  * Represents the current vision card deck that the ghost will use
+ * The "deck" is actually a next card call from the image APIs
  * Not used by the psychics
  */
 let VisionCardDeck = {
-    deck: [],
     currentCards: [],
     usedCards: [],
 
@@ -12,7 +12,6 @@ let VisionCardDeck = {
      * Should only be calld when starting a new game completely
      */
     reset: async function() {
-        this.deck = [];
         this.currentCards = [];
         await this.initialize();
     },
@@ -21,9 +20,8 @@ let VisionCardDeck = {
      * Initializes the deck and deals out the initial set of cards
      */
     initialize: async function() {
-        this.deck = await this._getImageData();
         for (let i = 0; i < Settings.numberOfVisionCards; i++) {
-            this.currentCards.push(this.deck.pop());
+            this.currentCards.push(await this._getNextCardFromDeck());
         }
     },
 
@@ -58,20 +56,9 @@ let VisionCardDeck = {
 
     /**
      * Gets the next card from the deck
-     * Will shuffle the used cards if necessary
+     * Looks up more cards if the deck is out
      */
     _getNextCardFromDeck: async function() {
-        if (this.deck.length === 0) {
-            this.deck = await this._getImageData();
-        }
-
-        return this.deck.pop();
-    },
-
-    /**
-     * TODO: call some sort of API to get these images instead
-     */
-    _getImageData: async function() {
-        return await UnsplashAPI.getVisionCardImages();
+        return await UnsplashAPI.getVisionCardImage();
     }
 };

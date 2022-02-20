@@ -7,6 +7,15 @@ let UnsplashAPI = {
     visionCardIdCount: 0,
 
     /**
+     * Arrays of the current images
+     */
+    _visionCardImageBank: [],
+    _sceneCardImageBank: [],
+
+    //TODO; if this is going to be objects, maybe this should be more generic and also used by the suspect cards?
+    _weaponCardImageBank: [], 
+
+    /**
      * The topic ids from Unsplash
      */
     Topics: {
@@ -19,10 +28,14 @@ let UnsplashAPI = {
     },
     
     /**
-     * Gets a list of vision card images
-     * @returns An array of images in the form { id: <Number>, url: <String> }
+     * Gets the next vision card image data - will request 30 more if it's empty
+     * @returns An image in the form { id: <Number>, url: <String> }
      */
-    getVisionCardImages: async function() {
+    getVisionCardImage: async function() {
+        if (this._visionCardImageBank.length > 0) {
+            return this._visionCardImageBank.pop();
+        }
+
         let parameters = [
             {
                 property: "topics", 
@@ -34,14 +47,33 @@ let UnsplashAPI = {
             }
         ];
 
-       return await this._getImageURLs(parameters);
+        this._visionCardImageBank = await this._getImageURLs(parameters);
+        return this._visionCardImageBank.pop();
     },
 
     /**
-     * Gets a list of scene  card images
-     * @returns An array of images in the form { id: <Number>, url: <String> }
+     * Returns the next susepct card image data
+     * The array of urls will be parsed into the image by the UI code
+     * @returns An array of suspect card images in the form { urls: <Array<String>> }
      */
-    getSceneCardImages: async function() {
+    getSuspectCardImage: async function() {
+        //TODO: this logic - probably another bank of object images to use here as well
+
+        // This is just for a test - remove this!
+        return {
+            urls: [Random.getRandomValueFromArray(StaticImages), Random.getRandomValueFromArray(StaticImages)]
+        };
+    },
+
+    /**
+     * Gets the next scene card image data - will request 30 more if it's empty
+     * @returns An image in the form { id: <Number>, url: <String> }
+     */
+    getSceneCardImage: async function() {
+        if (this._sceneCardImageBank.length > 0) {
+            return this._sceneCardImageBank.pop();
+        }
+
         let parameters = [
             {
                 property: "topics", 
@@ -52,19 +84,29 @@ let UnsplashAPI = {
                 value: "landscape"
             }
         ];
+
+        this._sceneCardImageBank = await this._getImageURLs(parameters, true); //TODO: remove the second param when done
+        return this._sceneCardImageBank.pop();
     },
 
     /**
      * Gets a list of weapon card images
-     * @returns An array of images in the form { id: <Number>, url: <String> }
+     * @returns An image in the form { id: <Number>, url: <String> }
      */
-    getWeaponCardImages: async function() {
+    getWeaponCardImage: async function() {
+        if (this._weaponCardImageBank.length > 0) {
+            return this._sceneCardImageBank.pop();
+        }
+
         let parameters = [
             {
                 property: "query", 
                 value: "objects"
             }
         ];
+
+        this._weaponCardImageBank = await this._getImageURLs(parameters, true); //TODO: remove the second param when done
+        return this._weaponCardImageBank.pop();
     },
 
     /**
@@ -72,8 +114,8 @@ let UnsplashAPI = {
      * @param {Array<Any>} parameters - the parameters to pass to the api 
      * @returns An array of images in the form { id: <Number>, url: <String> }
      */
-    _getImageURLs: async function(parameters) {
-        if (Settings.useStaticImages) {
+    _getImageURLs: async function(parameters, forceStaticImages) { //TODO: remove the second param when done - just for testing
+        if (Settings.useStaticImages || forceStaticImages) {
             return this._getStaticImages();
         }
 

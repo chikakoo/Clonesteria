@@ -306,13 +306,13 @@ let GameUI = {
         let choices = Choices.getChoices(round);
         let _this = this;
         choices.forEach(function(choice) {
-            let choiceElement = dce("div", "choice");
-            choiceElement.id = _this._getIdForChoice(choice.id);
-            choiceElement.style["backgroundImage"] = `url("${choice.url}")`;
+            let choiceElement = Choices.createBaseChoiceElement(choice, _this._getIdForChoice(choice.id));
 
             if (_this._shouldDisableChoice(round, choice)) {
                 addCssClass(choiceElement, "already-chosen");
             }
+
+            let choiceUrl = choice.url ? choice.url : choice.urls[0]; //TODO: rework this and the big image to display correctly
 
             choiceElement.onclick = function() {
                 let wasAlreadyChosen = ChoiceHistory.checkIfInHistory(_this.selectedPsychicId, round, choice.id);
@@ -334,12 +334,12 @@ let GameUI = {
                     addCssClass(choiceElement, "choice-selected");
                 }
 
-                _this._showImageForChoiceDisplay(choice.url);
+                _this._showImageForChoiceDisplay(choice);
             };
 
             if (_this._selectedAnswer && _this._selectedAnswer.id === choice.id) {
                 addCssClass(choiceElement, "choice-selected");
-                _this._showImageForChoiceDisplay(choice.url);
+                _this._showImageForChoiceDisplay(choice);
             }
             
             if (_this.didSelectedPsychicSendChoice()) {
@@ -387,11 +387,15 @@ let GameUI = {
 
     /**
      * Shows the given image on the main display
-     * @param {String} imageUrl - the image url to show
-     */
-     _showImageForChoiceDisplay: function(imageUrl) {
+     * @param {String} choice - the choice to display
+     */ 
+     _showImageForChoiceDisplay: function(choice) {
         let choiceDisplay = document.getElementById("choiceDisplay");
-        choiceDisplay.style["backgroundImage"] = `url("${imageUrl}")`;
+        choiceDisplay.innerHTML = "";
+
+        let elementId = `${this._getIdForChoice(choice.id)}-display`;
+        let choiceElement = Choices.createBaseChoiceElement(choice, elementId);
+        choiceDisplay.appendChild(choiceElement);
     },
 
     /**

@@ -21,64 +21,68 @@ let Choices = {
     /**
      * Resets the choices - should only be done when the game is completely restarting!
      */
-    reset: function() {
+    reset: async function() {
         this.choices = [];
-        this.initialize();
+        await this.initialize();
     },
 
     /**
      * Initializes the choices for the game
      */
-    initialize: function() {
-        this._pushLocationChoices();
-        this._pushSuspectChoices();
+    initialize: async function() {
+        await this._pushSuspectChoices();
+        await this._pushSceneChoices();
         
         Settings.useStories
-        ? this._pushStoryChoices()
-        : this._pushWeaponChoices();
+        ? await this._pushStoryChoices()
+        : await this._pushWeaponChoices();
 
-        this._assignAnswers();
-    },
-
-    /**
-     * Pushes a list of location choices
-     */
-    _pushLocationChoices: function() {
-        this._insertImageDataToChoices(this._getImageData());
+        await this._assignAnswers();
     },
 
     /**
      * Pushes a list of suspect choices
      */
-     _pushSuspectChoices: function() {
-        this._insertImageDataToChoices(this._getImageData());
+    _pushSuspectChoices: async function() {
+        this._insertImageDataToChoices(
+            await this._getImageData(UnsplashAPI.getSuspectCardImage.bind(UnsplashAPI)));
+    },
+
+    /**
+     * Pushes a list of scene choices
+     */
+    _pushSceneChoices: async function() {
+        this._insertImageDataToChoices(
+            await this._getImageData(UnsplashAPI.getSceneCardImage.bind(UnsplashAPI)));
     },
 
     /**
      * Pushes a list of weapon choices
      */
-     _pushWeaponChoices: function() {
-        this._insertImageDataToChoices(this._getImageData());
+     _pushWeaponChoices: async function() {
+        this._insertImageDataToChoices(
+            await this._getImageData(UnsplashAPI.getWeaponCardImage.bind(UnsplashAPI)));
     },
 
     /**
      * Pushes a list of story choices
      */
-     _pushStoryChoices: function() {
-        this._insertImageDataToChoices(this._getImageData());
+     _pushStoryChoices: async function() {
+        this._insertImageDataToChoices(
+            await this._getImageData(UnsplashAPI.getWeaponCardImage.bind(UnsplashAPI))); //TODO: update this when there's a story API call
     },
 
     /**
-     * TODO: call some sort of API to get these images instead - adjust all the above functions to use it appropriately
+     * Formats the image data
+     * @param {Function} imageFunction - the function used to get the base object for the images to add
      */
-    _getImageData: function() {
+    _getImageData: async function(imageFunction) {
         let imageData = [];
         for (let i = 0; i < Settings.numberOfChoices; i++) {
-            imageData.push({
-                id: i,
-                url: Random.getRandomValueFromArray(StaticImages),
-                answer: -1
-            });
+            let image = await imageFunction();
+            image.id = i;
+            image.answer = -1;
+            imageData.push(image);
         }
         return imageData;
     },
@@ -105,6 +109,7 @@ let Choices = {
             for (let i = 0; i < numberOfPsychics; i++) {
                 answers[i].answer = i;
             }
+
             choicesForRound.shuffle();
         });
     },
@@ -127,5 +132,30 @@ let Choices = {
         let roundChoices = this.getChoices(round);
         let choice = roundChoices.find(choices => choices.id === chosenAnswerId);
         return choice.answer === Number(psychicId);
+    },
+
+    /**
+     * Creates a div based on the given choice
+     * @param {Any} choice - the choice
+     * @param {String} elementId - the id to assign the element
+     * @return - the created div
+     */
+    createBaseChoiceElement: function(choice, elementId) {
+        let choiceElement = dce("div", "choice");
+        choiceElement.id = elementId;
+        if (choice.url) {
+            choiceElement.style["backgroundImage"] = `url("${choice.url}")`;
+        } else if (choice.urls && choice.urls.length > 0) {
+            choiceElement.style["backgroundImage"] = `url("${choice.urls[0]}")`;
+
+            //TODO: rework this logic to be how we actually want it!
+            if (choice.urls.length > 1) {
+                let suspectItem = dce("div", "suspect-item");
+                suspectItem.style["backgroundImage"] = `url("${choice.urls[1]}")`;
+                choiceElement.appendChild(suspectItem);
+            }
+        }
+
+        return choiceElement;
     }
 }

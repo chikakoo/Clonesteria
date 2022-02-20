@@ -56,7 +56,7 @@
     height: 420px;
 }
 
-#choiceDisplay, #visionCardDisplay {
+#choiceDisplay:empty, #choiceDisplay > div, #visionCardDisplay {
     border: 3px solid black;
     background-size: cover;
     background-position: center center;
@@ -64,7 +64,7 @@
     height: 400px;
 }
 
-#choiceDisplay {
+#choiceDisplay:empty, #choiceDisplay > div {
     width: 500px;
     margin-right: 5px;
 }
