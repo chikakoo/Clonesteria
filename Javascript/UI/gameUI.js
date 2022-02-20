@@ -1,10 +1,5 @@
 let GameUI = {
     /**
-     * The current round being shown
-     */
-    _round: 0,
-
-    /**
      * The currently selected psychic ID - determines which psychic's info to show
      * Will default to selecting the first one
      */
@@ -32,24 +27,24 @@ let GameUI = {
 
     /**
      * Starts the game at the passed in round
-     * @param {Number} round - the round to start at
      */
-    startRound: function(round) {
+    startRound: function() {
         hideElement(Main.preRoomJoinElement);
         hideElement(Main.roomLobbyElement);
         showElement(Main.gameElement);
 
         this._playerType = Main.player.type;
-        this._round = round;
         this.selectedPsychicId = Object.keys(Main.player.psychics)[0];
 
         this._cardIdsToSend = {};
-        this._attempt = {};
+        this._selectedAnswer = null;
 
         let _this = this;
         Object.keys(Main.player.psychics).forEach(function(psychicId) {
             _this._cardIdsToSend[psychicId] = [];
-            _this._attempt[psychicId] = 1;
+            if (!_this._attempt[psychicId]) {
+                _this._attempt[psychicId] = 1;
+            }
         });
 
         this._initializePsychicContainer();
@@ -121,7 +116,7 @@ let GameUI = {
             hideElement(document.getElementById("sendChoiceButton"));
         } else {
             let sendChoiceButton = document.getElementById("sendChoiceButton");
-            addOrRemoveCssClass(sendChoiceButton, "disabled-send-button", this.didSelectedPsychicSendChoice())
+            addOrRemoveCssClass(sendChoiceButton, "disabled-send-button", !this.isSelectedPsychicSendingChoice())
             showElement(sendChoiceButton);
             hideElement(document.getElementById("sendVisionCardsButton"));
         }
@@ -202,6 +197,13 @@ let GameUI = {
      */
     didSelectedPsychicReceiveVisionCards: function() {
         return Main.getPsychicState(this.selectedPsychicId) !== States.Rounds.PRE_VISION;
+    },
+
+    /**
+     * Returns whether the current selected psychic is currently sending their choice
+     */
+    isSelectedPsychicSendingChoice: function() {
+        return Main.getPsychicState(this.selectedPsychicId) === States.Rounds.POST_VISION;
     },
 
     /**
@@ -308,12 +310,13 @@ let GameUI = {
             choiceElement.id = _this._getIdForChoice(choice.id);
             choiceElement.style["backgroundImage"] = `url("${choice.url}")`;
 
-            let wasAlreadyChosen = ChoiceHistory.checkIfInHistory(_this.selectedPsychicId, round, choice.id);
-            if (wasAlreadyChosen) {
+            if (_this._shouldDisableChoice(round, choice)) {
                 addCssClass(choiceElement, "already-chosen");
             }
 
             choiceElement.onclick = function() {
+                let wasAlreadyChosen = ChoiceHistory.checkIfInHistory(_this.selectedPsychicId, round, choice.id);
+
                 if (_this.didSelectedPsychicSendChoice()) {
                     // Don't do anything if we're done, just show the image that was clicked
                 } else if (_this._playerType === PlayerType.PSYCHIC && wasAlreadyChosen) { 
@@ -338,28 +341,48 @@ let GameUI = {
                 addCssClass(choiceElement, "choice-selected");
                 _this._showImageForChoiceDisplay(choice.url);
             }
+            
+            if (_this.didSelectedPsychicSendChoice()) {
+                let lastAnswerData = ChoiceHistory.history[_this.selectedPsychicId][round];
+                let lastAnswerId = lastAnswerData[lastAnswerData.length - 1];
+
+                if (lastAnswerId === choice.id) {
+                    addCssClass(choiceElement, "choice-selected");
+                }
+            }
 
             if (_this._playerType === PlayerType.GHOST) {
                 if (choice.answer === Number(_this.selectedPsychicId)) {
                     addCssClass(choiceElement, "choice-answer");
                 }
-                
-                // Show the current answer
-                //TODO: design this to instead look at the last element - and do so
-                // if we get some sort of flag that the psychic sent something?
-                // maybe "lastSentChoiceId" - and unset it between attempts?
-                if (ChoiceHistory.history[_this.selectedPsychicId] &&
-                    ChoiceHistory.history[_this.selectedPsychicId][round]) {
-                    let historyData = ChoiceHistory.history[_this.selectedPsychicId][round];
-                    if (_this._attempt[_this.selectedPsychicId] === historyData.length + 1 &&
-                        historyData[historyData.length - 1] === choice.id) {
-                            addCssClass(choiceElement, "choice-selected");
-                    }
-                }
             }
 
             choicesContainer.appendChild(choiceElement);
         });
+    },
+
+    /**
+     * Gets whether the choice should be disabled - 2 criteria
+     * - the choice wasn't already chosen on an earlier round
+     * - the choice wasn't an answer for another psychic
+     * @param {Number} round - the current round
+     * @param {Any} choice - the choice to check
+     */
+    _shouldDisableChoice: function(round, choice) {
+        let otherPsychics = Object.keys(Main.player.psychics);
+        let index = otherPsychics.indexOf(this.selectedPsychicId);
+        otherPsychics.splice(index, 1);
+
+        let wasOtherPsychicAnswer = false;
+        otherPsychics.forEach(function(psychicId) {
+            let isPsychicPassedThisRound = Main.player.psychics[psychicId].round > round;
+            if (isPsychicPassedThisRound && choice.answer === Number(psychicId)) {
+                wasOtherPsychicAnswer = true;
+            }
+        });
+
+        let wasAlreadyChosen = ChoiceHistory.checkIfInHistory(this.selectedPsychicId, round, choice.id);
+        return wasOtherPsychicAnswer || wasAlreadyChosen;
     },
 
     /**
@@ -394,7 +417,7 @@ let GameUI = {
      * or asks the user whether they wish to proceed with sending
      */
      onSendVisionCardsClicked: async function() {
-        if (this.didSelectedPsychicReceiveVisionCards()) {
+        if (this.didSelectedPsychicReceiveVisionCards() || this._playerType === PlayerType.PSYCHIC) {
             return;
         }
 
@@ -404,8 +427,11 @@ let GameUI = {
             return;
         }
 
+        let message = numberOfCardsToSend === 1 
+            ? `Are you sure you want to send</br>this ${numberOfCardsToSend} card?`
+            : `Are you sure you want to send</br>these ${numberOfCardsToSend} cards?`;
         ModalPopup.displayPopup(
-            `Are you sure you want to send</br> these ${numberOfCardsToSend} cards?`,
+            message,
             [
                 { text: "Yes", callback: await this.sendVisionCards.bind(this) },
                 { text: "No" }
@@ -415,7 +441,6 @@ let GameUI = {
 
     /**
      * Sends the selected vision cards
-     * TODO: ACTUALLY send the cards to the psychic!
      */
     sendVisionCards: async function() {
         let cardsToSend = await VisionCardDeck.replaceCards(this._cardIdsToSend[this.selectedPsychicId]);
@@ -429,7 +454,6 @@ let GameUI = {
         SocketClient.sendVisionsToPsychic(this.selectedPsychicId, round, attempt, cardsToSend);
 
         Main.setPsychicState(this.selectedPsychicId, States.Rounds.POST_VISION);
-        this._attempt[this.selectedPsychicId]++; //TODO: move this to a more general place, like when the attempt actually advances?
         this.refreshVisionCardsForGhost();
     },
 
@@ -452,10 +476,10 @@ let GameUI = {
     },
 
     /**
-     * Validates that a choice is actually selected and then sents that choice to the ghost
+     * Validates that a choice is actually selected and then sends that choice to the ghost
      */
     onSendChoiceClicked: function() {
-        if (this._playerType === PlayerType.GHOST) {
+        if (!this.isSelectedPsychicSendingChoice() || this._playerType === PlayerType.GHOST) {
             return;
         }
 
@@ -464,6 +488,19 @@ let GameUI = {
             return;
         }
 
+        ModalPopup.displayPopup(
+            `Are you sure you want to send</br>your current selection?`,
+            [
+                { text: "Yes", callback: this.sendChoice.bind(this) },
+                { text: "No" }
+            ]
+        )
+    },
+
+    /**
+     * Sends the selected choice to the ghost
+     */
+    sendChoice: function() {
         let round = Main.player.psychics[this.selectedPsychicId].round;
         ChoiceHistory.add(this.selectedPsychicId, round, this._selectedAnswer.id)
         SocketClient.sendChoiceToGhost(this.selectedPsychicId, round, this._selectedAnswer.id);
@@ -471,7 +508,52 @@ let GameUI = {
         this._selectedAnswer = null;
 
         Main.setPsychicState(this.selectedPsychicId, States.Rounds.POST_ANSWER);
-        this._attempt[this.selectedPsychicId]++; //TODO: move this to a more general place, like when the attempt actually advances?
-        hideElement(document.getElementById("sendChoiceButton"));
+        this.checkForRoundEnd();
+    },
+
+    /**
+     * Checks whether the round should end
+     * Increments the psychic's round if necessary
+     * Also sets the attempt values appropriately
+     */
+    checkForRoundEnd: function() {
+        if (Main.areAllChoicesSent()) {
+            let results = "<strong>Results</strong>";
+            let _this = this;
+            Object.keys(Main.player.psychics).forEach(function(psychicId) {
+                let round = Main.getPsychicRound(psychicId);
+                let latestAnswer = ChoiceHistory.getLatestAnswer(psychicId, round);
+                let isCorrect = Choices.checkAnswer(psychicId, round, latestAnswer);
+                let resultsString = isCorrect
+                    ? "CORRECT! :D"
+                    : "INCORRECT! D:"
+
+                results += `<br/>Psychic ${Number(psychicId) + 1}: ${resultsString}`;
+
+                if (isCorrect) {
+                    _this._attempt[psychicId] = 1;
+                    Main.advancePsychicRound(psychicId);
+                } else {
+                    _this._attempt[psychicId]++;
+                }
+            });
+
+            if (Main.isClient) {
+                ModalPopup.displayPopup(results,  [{ text: "Waiting for host..." }], true);
+            } else {
+                ModalPopup.displayPopup(
+                    results, 
+                    [{ text: "Next Round!", callback: this.startNextRound }]
+                );
+            }
+        }
+    },
+
+    /**
+     * Starts the next round
+     */
+    startNextRound: function() {
+        SocketClient.nextRound();
+        Main.nextRound();
     }
 }

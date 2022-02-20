@@ -75,13 +75,22 @@
          client.to(roomName).broadcast.emit('game_start', playerType, choices);
      });
 
+     client.on('next_round', function(roomName) {
+        console.log("Starting next round.");
+        client.to(roomName).broadcast.emit('next_round');
+     });
+
     // ---- Ghost communicating with Psychic ---- //
     client.on('send_visions_to_psychic', function(roomName, psychicId, round, attempt, visions) {
         console.log(`Recevied visions from psychic, ID|Round|Attempt|Count: ${psychicId}|${round}|${attempt}|${visions.length}`);
-        client.to(roomName).broadcast.emit('receive_visions_from_psychic', psychicId, round, attempt, visions);
+        client.to(roomName).broadcast.emit('receive_visions_from_ghost', psychicId, round, attempt, visions);
     });
 
     // ---- Psychic communicating with Ghost ---- //
+    client.on('send_choice_to_ghost', function(roomName, psychicId, round, choiceId) {
+        console.log(`Recevied choice from psychic, ID|Round|ChoiceID: ${psychicId}|${round}|${choiceId}`);
+        client.to(roomName).broadcast.emit('receive_choice_from_psychic', psychicId, round, choiceId);
+    });
  });
  
  /**

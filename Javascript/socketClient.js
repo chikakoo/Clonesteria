@@ -64,16 +64,29 @@ SocketClient = {
             await Main.gameStart(playerType);
         });
 
-        // ---- Psychic receiving messages from ghost ---- //
-        this._socket.on('receive_visions_from_psychic', function(psychicId, round, attempt, visions) {
-            VisionCardHistory.add(psychicId, round, attempt, visions);
-            GameUI.refreshVisionCardsForPsychic(Main.roomName, psychicId, round, attempt, visions);
-            Main.setPsychicState(psychicId, States.Rounds.POST_VISION);
+        /**
+         * Only called on the non-host, so that both players start at the same time
+         * Will hide the modal popup that's currently blocking them as well
+         */
+        this._socket.on('next_round', function() {
+            ModalPopup.hide();
+            Main.nextRound();
+        });
 
-            //TODO: AND enable them to send cards... well they have to be disabled first!
+        // ---- Psychic receiving messages from ghost ---- //
+        this._socket.on('receive_visions_from_ghost', function(psychicId, round, attempt, visions) {
+            VisionCardHistory.add(psychicId, round, attempt, visions);
+            Main.setPsychicState(psychicId, States.Rounds.POST_VISION);
+            GameUI.refreshVisionCardsForPsychic();
         });
 
         // ---- Ghost receiving messages from psychic ---- //
+        this._socket.on('receive_choice_from_psychic', function(psychicId, round, choiceId) {
+            ChoiceHistory.add(psychicId, round, choiceId);
+            Main.setPsychicState(psychicId, States.Rounds.POST_ANSWER);
+            GameUI.refreshChoices();
+            GameUI.checkForRoundEnd();
+        });
     },
 
     /**
@@ -128,6 +141,15 @@ SocketClient = {
         }
     },
 
+    /**
+     * Starts the next round
+     */
+    nextRound: function() {
+        if (this._socket) {
+            this._socket.emit("next_round", Main.roomName);
+        }
+    },
+
     // ---- Ghost communicating with Psychic ---- //
 
     /**
@@ -146,7 +168,7 @@ SocketClient = {
     // ---- Psychic communicating with Ghost ---- //
     sendChoiceToGhost: function(psychicId, round, choiceId) {
         if (this._socket && Main.player.type === PlayerType.PSYCHIC) {
-            this._socket.emit("send_choice_to_ghost", Main.roomName, psychicId, round, choiceId); //TODO: not done yet!!!
+            this._socket.emit("send_choice_to_ghost", Main.roomName, psychicId, round, choiceId);
         }
     }
 };

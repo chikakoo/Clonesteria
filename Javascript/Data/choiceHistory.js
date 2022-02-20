@@ -41,5 +41,20 @@ let ChoiceHistory = {
         return this.history[psychic] &&
             this.history[psychic][round] &&
             this.history[psychic][round].includes(choiceId);
+    },
+
+    /**
+     * Gets back the latest answer for a given psychic and round
+     * @param {Number} psychicId - the psychic id
+     * @param {Number} round - the round number
+     * @return The latest answer - null if no answers given
+     */
+    getLatestAnswer: function(psychicId, round) {
+        if (!this.history[psychicId] || !this.history[psychicId][round]) {
+            return -999;
+        }
+
+        let roundData = this.history[psychicId][round];
+        return roundData[roundData.length - 1];
     }
 }

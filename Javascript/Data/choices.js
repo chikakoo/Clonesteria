@@ -111,21 +111,21 @@ let Choices = {
 
     /**
      * Gets the choices for the current round
-     * @param {Number} round - the round
+     * @param {Number} round - the round - 1-indexed
      */
     getChoices: function(round) {
-        return this.choices[round];
+        return this.choices[round - 1];
     },
 
     /**
      * Checks whether the given answer is correct
-     * @param {Number} round - the round to check
      * @param {Number} psychicId - the psychic ID
+     * @param {Number} round - the round to check
      * @param {Number} chosenAnswerId - the chosen answer ID
      */
-    checkAnswer: function(round, psychicId, chosenAnswerId) {
+    checkAnswer: function(psychicId, round, chosenAnswerId) {
         let roundChoices = this.getChoices(round);
         let choice = roundChoices.find(choices => choices.id === chosenAnswerId);
-        return choice.answer === psychicId;
+        return choice.answer === Number(psychicId);
     }
 }

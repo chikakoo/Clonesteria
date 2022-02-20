@@ -108,7 +108,7 @@ let Main = {
             ChoiceHistory.history = Settings.debug.startingChoiceHistory;
         }
 
-        this._startRound();
+        this.nextRound();
     },
 
     /**
@@ -141,6 +141,22 @@ let Main = {
     }, 
 
     /**
+     * Returns the round of the given psychic
+     * @param {Number} psychicId - the psychic id
+     */
+    getPsychicRound: function(psychicId) {
+        return this.player.psychics[psychicId].round;
+    },
+
+    /**
+     * Advances the round for the psychic
+     * @param {Number} psychicId - the psychic id
+     */
+    advancePsychicRound: function(psychicId) {
+        this.player.psychics[psychicId].round++;
+    },
+
+    /**
      * Returns the state of the given psychic id
      * @param {Number} psychicId - the psychic id
      */
@@ -161,13 +177,22 @@ let Main = {
     /**
      * Starts the round
      */
-    _startRound: function() {
+    nextRound: function() {
         this.currentRound++;
 
         Object.values(this.player.psychics).forEach(function(psychic) {
             psychic.state = States.Rounds.PRE_VISION
         });
 
-        GameUI.startRound(this.currentRound);
+        GameUI.startRound();
+    },
+
+    /**
+     * Gets whether every psychic is done choosing their choice
+     * @returns True if so, false otherwise
+     */
+    areAllChoicesSent: function() {
+        return Object.values(this.player.psychics)
+            .every(psychic => psychic.state === States.Rounds.POST_ANSWER);
     }
 };

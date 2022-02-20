@@ -15,6 +15,12 @@ let ModalPopup = {
     description: "",
 
     /**
+     * Whether to override the hide functionality on button press
+     * Is re-disabled when hidden
+     */
+    overrideHide: false,
+
+    /**
      * An array of button options - contains objects of the following:
      * - text: <String>
      * - callback: <Function>
@@ -36,12 +42,14 @@ let ModalPopup = {
      * Displays the popup with the given options passed in
      * @param {String} description 
      * @param {Array<Object>} buttonOptions 
+     * @param {Boolean} overrideHide
      */
-    displayPopup: function(description, buttonOptions) {
+    displayPopup: function(description, buttonOptions, overrideHide) {
         if (!buttonOptions || buttonOptions.length === 0) {
             buttonOptions = [{ text: "OK" }];
         }
 
+        this.overrideHide = overrideHide;
         this.description = description;
         this.buttonOptions = buttonOptions;
 
@@ -79,10 +87,13 @@ let ModalPopup = {
             let modalButton = dce("button", "modal-button");
             modalButton.innerText = option.text;
             modalButton.onclick = function() {
+                if (!_this.overrideHide) {
+                    _this.hide();
+                }
+                
                 if (option.callback) {
                     option.callback();
                 }
-                _this.hide();
             }
 
             buttonContainer.appendChild(modalButton);
@@ -97,6 +108,7 @@ let ModalPopup = {
         this._deElevateElements();
 
         this.description = "";
+        this.overrideHide = false;
         this.buttonOptions = [];
         this.elementsToElevate = [];
         hideElement(document.getElementById("modalScreen"));
@@ -107,7 +119,7 @@ let ModalPopup = {
      * Removes the CSS class from all the elements that were elevated
      */
     _deElevateElements: function() {
-        _this = this;
+        let _this = this;
         this.elementsToElevate.forEach(function(element) {
             removeCssClass(element, _this._elevateCssClass);
         });
