@@ -95,6 +95,10 @@ SocketClient = {
             GameUI.refreshVisionCardsForPsychic();
         });
 
+        this._socket.on('receive_rerolls_from_ghost', function(rerolls) {
+            Reroll.refreshText(rerolls);
+        });
+
         // ---- Ghost receiving messages from psychic ---- //
         this._socket.on('receive_choice_from_psychic', function(psychicId, round, choiceId) {
             ChoiceHistory.add(psychicId, round, choiceId);
@@ -197,6 +201,16 @@ SocketClient = {
     sendVisionsToPsychic: function(psychicId, round, attempt, visions) {
         if (this._socket && Main.player.type === PlayerType.GHOST) {
             this._socket.emit("send_visions_to_psychic", Main.roomName, psychicId, round, attempt, visions);
+        }
+    },
+
+    /**
+     * Sends over the reroll count
+     * @param {Number} rerolls - the reroll count
+     */
+    refreshRerolls: function(rerolls) {
+        if (this._socket && Main.player.type === PlayerType.GHOST) {
+            this._socket.emit("send_rerolls_to_psychic", Main.roomName, rerolls);
         }
     },
 

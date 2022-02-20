@@ -94,6 +94,11 @@
         client.to(roomName).broadcast.emit('receive_visions_from_ghost', psychicId, round, attempt, visions);
     });
 
+    client.on('send_rerolls_to_psychic', function(roomName, rerolls) {
+        console.log(`Sending over reroll count: ${rerolls}`);
+        client.to(roomName).broadcast.emit('receive_rerolls_from_ghost', rerolls);
+    });
+
     // ---- Psychic communicating with Ghost ---- //
     client.on('send_choice_to_ghost', function(roomName, psychicId, round, choiceId) {
         console.log(`Recevied choice from psychic, ID|Round|ChoiceID: ${psychicId}|${round}|${choiceId}`);

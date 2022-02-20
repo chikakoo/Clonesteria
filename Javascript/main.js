@@ -182,6 +182,7 @@ let Main = {
             psychic.state = States.Rounds.PRE_VISION
         });
 
+        SocketClient.refreshRerolls(Reroll.rerolls);
         GameUI.startRound();
     },
 

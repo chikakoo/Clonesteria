@@ -23,14 +23,17 @@ let Reroll = {
      */
     reset: function() {
         this.rerolls = Settings.numberOfRerolls;
-        this.refreshText();
+        this.refreshText(this.rerolls);
     },
 
     /**
      * Iuitializes the reroll UI
+     * @param {Number} numberOfRerolls - the text to display
      */
-     refreshText: function() {
-        document.getElementById("rerolls").innerText = this.rerolls;
+     refreshText: function(numberOfRerolls) {
+        this.rerolls = numberOfRerolls;
+        document.getElementById("rerolls").innerText = numberOfRerolls;
+        SocketClient.refreshRerolls(this.rerolls);
     },
 
     /**
@@ -62,6 +65,6 @@ let Reroll = {
         GameUI.removeSelectedCardsToSend(this.selectedCardIds);
         GameUI.refreshVisionCardsForGhost();
         this.selectedCardIds = [];
-        this.refreshText();
+        this.refreshText(this.rerolls);
     }
 }
