@@ -16,17 +16,6 @@ let GameUI = {
     _playerType: null,
 
     /**
-     * Whether the ghost is currently selecting vision cards to send
-     */
-    _sendingVisionCards: false,
-
-    /**
-     * Whether the vision cards were sent - indexed by the psychic id
-     * Used by both the ghost and the psychic
-     */
-    cardsSent: {},
-
-    /**
      * Arrays of all card ids to send to the psychic - indexed by the psychic id
      */
     _cardIdsToSend: {},
@@ -54,13 +43,11 @@ let GameUI = {
         this._round = round;
         this.selectedPsychicId = Object.keys(Main.player.psychics)[0];
 
-        this.cardsSent = {};
         this._cardIdsToSend = {};
         this._attempt = {};
 
         let _this = this;
         Object.keys(Main.player.psychics).forEach(function(psychicId) {
-            _this.cardsSent[psychicId] = false;
             _this._cardIdsToSend[psychicId] = [];
             _this._attempt[psychicId] = 1;
         });
@@ -125,6 +112,19 @@ let GameUI = {
                 addCssClass(psychicButton, "selected-psychic");
             }
         });
+
+        //TODO: put these in their own function
+        if (this._playerType == PlayerType.GHOST) {
+            let visionCardsButton = document.getElementById("sendVisionCardsButton");
+            addOrRemoveCssClass(visionCardsButton, "disabled-send-button", this.didSelectedPsychicReceiveVisionCards());
+            showElement(visionCardsButton);
+            hideElement(document.getElementById("sendChoiceButton"));
+        } else {
+            let sendChoiceButton = document.getElementById("sendChoiceButton");
+            addOrRemoveCssClass(sendChoiceButton, "disabled-send-button", this.didSelectedPsychicSendChoice())
+            showElement(sendChoiceButton);
+            hideElement(document.getElementById("sendVisionCardsButton"));
+        }
     },
 
     /**
@@ -167,13 +167,6 @@ let GameUI = {
         removeCssClass(visionCardsContainer, "psychic-vision-cards");
         visionCardsContainer.innerHTML = "";
 
-        addOrRemoveCssClass(
-            document.getElementById("sendVisionCardsButton"), 
-            "nodisp", 
-            this.cardsSent[this.selectedPsychicId]);
-
-        hideElement(document.getElementById("sendChoiceButton"));
-
         let _this = this;
         VisionCardDeck.currentCards.forEach(function(card) {
             let visionCard = dce("div", "vision-card");
@@ -194,7 +187,7 @@ let GameUI = {
             }
 
             visionCard.oncontextmenu = function() {
-                if (!Reroll.rerolling && !_this.cardsSent[_this.selectedPsychicId]) {
+                if (!Reroll.rerolling && !_this.didSelectedPsychicReceiveVisionCards()) {
                     _this._addOrRemoveSelectedCardIDFormArray(
                         card.id, visionCard, _this._cardIdsToSend[_this.selectedPsychicId], "selected-for-sending");
                 }
@@ -202,6 +195,20 @@ let GameUI = {
 
             visionCardsContainer.appendChild(visionCard);
         });
+    },
+
+    /**
+     * Returns whether the current selected psychic received their vision cards
+     */
+    didSelectedPsychicReceiveVisionCards: function() {
+        return Main.getPsychicState(this.selectedPsychicId) !== States.Rounds.PRE_VISION;
+    },
+
+    /**
+     * Returns whether the current selected psychic received their vision cards
+     */
+    didSelectedPsychicSendChoice: function() {
+        return Main.getPsychicState(this.selectedPsychicId) === States.Rounds.POST_ANSWER;
     },
 
     /**
@@ -259,13 +266,6 @@ let GameUI = {
         addCssClass(visionCardsContainer,"psychic-vision-cards");
         visionCardsContainer.innerHTML = "";
 
-        addOrRemoveCssClass(
-            document.getElementById("sendChoiceButton"), 
-            "nodisp", 
-            this.cardsSent[this.selectedPsychicId]);
-
-        hideElement(document.getElementById("sendVisionCardsButton"));
-
         let round = Main.player.psychics[this.selectedPsychicId].round;
         if (!VisionCardHistory.history[this.selectedPsychicId] ||
             !VisionCardHistory.history[this.selectedPsychicId][round]) {
@@ -314,7 +314,7 @@ let GameUI = {
             }
 
             choiceElement.onclick = function() {
-                if (_this.cardsSent[_this.selectedPsychicId]) {
+                if (_this.didSelectedPsychicSendChoice()) {
                     // Don't do anything if we're done, just show the image that was clicked
                 } else if (_this._playerType === PlayerType.PSYCHIC && wasAlreadyChosen) { 
                     if (_this._selectedAnswer) {
@@ -394,7 +394,7 @@ let GameUI = {
      * or asks the user whether they wish to proceed with sending
      */
      onSendVisionCardsClicked: async function() {
-        if (this.cardsSent[this.selectedPsychicId]) {
+        if (this.didSelectedPsychicReceiveVisionCards()) {
             return;
         }
 
@@ -422,9 +422,6 @@ let GameUI = {
 
         this.removeSelectedCardsToSend(this._cardIdsToSend[this.selectedPsychicId]);
         this._cardIdsToSend[this.selectedPsychicId] =  [];
-
-        this.cardsSent[this.selectedPsychicId] = true;
-        hideElement(document.getElementById("sendVisionCardsButton"));
         
         let round = Main.player.psychics[this.selectedPsychicId].round;
         let attempt = this._attempt[this.selectedPsychicId]
@@ -471,9 +468,9 @@ let GameUI = {
         ChoiceHistory.add(this.selectedPsychicId, round, this._selectedAnswer.id)
         SocketClient.sendChoiceToGhost(this.selectedPsychicId, round, this._selectedAnswer.id);
 
-        this.cardsSent[this.selectedPsychicId] = true;
         this._selectedAnswer = null;
 
+        Main.setPsychicState(this.selectedPsychicId, States.Rounds.POST_ANSWER);
         this._attempt[this.selectedPsychicId]++; //TODO: move this to a more general place, like when the attempt actually advances?
         hideElement(document.getElementById("sendChoiceButton"));
     }

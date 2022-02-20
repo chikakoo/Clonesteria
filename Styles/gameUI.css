@@ -130,7 +130,19 @@
     width: 100px;
     height: 50px;
     border: 1px solid black;
+    background-color: black;
+    color: white;
     margin-left: 5px;
+}
+
+#sendVisionCardsButton:hover, #sendChoiceButton:hover {
+    color: green;
+}
+
+#sendVisionCardsButton.disabled-send-button,  #sendChoiceButton.disabled-send-button {
+    background-color: lightgray;
+    color: white;
+    opacity: 0.8;
 }
 
 #choices {

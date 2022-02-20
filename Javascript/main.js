@@ -141,6 +141,14 @@ let Main = {
     }, 
 
     /**
+     * Returns the state of the given psychic id
+     * @param {Number} psychicId - the psychic id
+     */
+    getPsychicState: function(psychicId) {
+        return this.player.psychics[psychicId].state;
+    },
+
+    /**
      * Sets the psychic state and updates the visual
      * @param {Number} psychicId - the id
      * @param {Number} state  -the state to set to
@@ -155,6 +163,11 @@ let Main = {
      */
     _startRound: function() {
         this.currentRound++;
+
+        Object.values(this.player.psychics).forEach(function(psychic) {
+            psychic.state = States.Rounds.PRE_VISION
+        });
+
         GameUI.startRound(this.currentRound);
     }
 };

@@ -38,7 +38,7 @@ let Reroll = {
      * Does not allow the psychic to enter this state
      */
     onRerollClicked: async function() {
-        if (Main.player.type !== PlayerType.GHOST || GameUI.cardsSent[GameUI.selectedPsychicId] || this.rerolls <= 0) {
+        if (Main.player.type !== PlayerType.GHOST || GameUI.didSelectedPsychicReceiveVisionCards() || this.rerolls <= 0) {
             this.rerolling = false;
             return;
         }
