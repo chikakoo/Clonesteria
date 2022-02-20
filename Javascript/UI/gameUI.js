@@ -393,7 +393,7 @@ let GameUI = {
      * Validates the vision card selection and either prompts to for a selection,
      * or asks the user whether they wish to proceed with sending
      */
-     onSendVisionCardsClicked: function() {
+     onSendVisionCardsClicked: async function() {
         if (this.cardsSent[this.selectedPsychicId]) {
             return;
         }
@@ -407,7 +407,7 @@ let GameUI = {
         ModalPopup.displayPopup(
             `Are you sure you want to send</br> these ${numberOfCardsToSend} cards?`,
             [
-                { text: "Yes", callback: this.sendVisionCards.bind(this) },
+                { text: "Yes", callback: await this.sendVisionCards.bind(this) },
                 { text: "No" }
             ]
         );
@@ -417,8 +417,8 @@ let GameUI = {
      * Sends the selected vision cards
      * TODO: ACTUALLY send the cards to the psychic!
      */
-    sendVisionCards: function() {
-        let cardsToSend = VisionCardDeck.replaceCards(this._cardIdsToSend[this.selectedPsychicId]);
+    sendVisionCards: async function() {
+        let cardsToSend = await VisionCardDeck.replaceCards(this._cardIdsToSend[this.selectedPsychicId]);
 
         this.removeSelectedCardsToSend(this._cardIdsToSend[this.selectedPsychicId]);
         this._cardIdsToSend[this.selectedPsychicId] =  [];

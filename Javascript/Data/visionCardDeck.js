@@ -32,7 +32,7 @@ let VisionCardDeck = {
      * @param {Array<Number>} cardIdsToReplace - Uses the given card ids
      * @return An array of the card objects replaced, containing the url of the card - used for card history
      */
-    replaceCards: function(cardIdsToReplace) {
+    replaceCards: async function(cardIdsToReplace) {
         // Remove cards from the currentCards array and add them to usedCards
         let newCurrentCards = [];
         let removedCards = [];
@@ -50,7 +50,7 @@ let VisionCardDeck = {
 
         // Deal out new cards from the deck
         for (let i = 0; i < cardIdsToReplace.length; i++) {
-            this.currentCards.push(this._getNextCardFromDeck());
+            this.currentCards.push(await this._getNextCardFromDeck());
         }
 
         return removedCards;
@@ -60,10 +60,9 @@ let VisionCardDeck = {
      * Gets the next card from the deck
      * Will shuffle the used cards if necessary
      */
-    _getNextCardFromDeck: function() {
+    _getNextCardFromDeck: async function() {
         if (this.deck.length === 0) {
-            this.deck = this.usedCards.shuffle();
-            this.usedCards = [];
+            this.deck = await this._getImageData();
         }
 
         return this.deck.pop();
@@ -73,8 +72,6 @@ let VisionCardDeck = {
      * TODO: call some sort of API to get these images instead
      */
     _getImageData: async function() {
-
         return await UnsplashAPI.getVisionCardImages();
-
     }
 };

@@ -37,7 +37,7 @@ let Reroll = {
      * Puts the game into a state where cards can be selected for rerolling
      * Does not allow the psychic to enter this state
      */
-    onRerollClicked: function() {
+    onRerollClicked: async function() {
         if (Main.player.type !== PlayerType.GHOST || GameUI.cardsSent[GameUI.selectedPsychicId] || this.rerolls <= 0) {
             this.rerolling = false;
             return;
@@ -51,7 +51,7 @@ let Reroll = {
         } else {
             if (this.selectedCardIds.length !== 0) {
                 this.rerolls--;
-                VisionCardDeck.replaceCards(this.selectedCardIds);
+                await VisionCardDeck.replaceCards(this.selectedCardIds);
             }
             
             ModalPopup.hide();
