@@ -9,7 +9,10 @@
 
 let StaticImages = [
     "https://wallpaperaccess.com/full/154009.jpg",
-    "https://www.wikihow.com/images/thumb/b/b5/Write-a-Business-Letter-Step-1-Version-5.jpg/aid95752-v4-728px-Write-a-Business-Letter-Step-1-Version-5.jpg"
+    "https://www.wikihow.com/images/thumb/b/b5/Write-a-Business-Letter-Step-1-Version-5.jpg/aid95752-v4-728px-Write-a-Business-Letter-Step-1-Version-5.jpg",
+    "https://rlv.zcache.com/space_background_planets_of_the_solar_system_roc_fleece_blanket-r28628b9c05aa4a3b8c532a936e3d19d8_zke88_307.jpg",
+    "https://cdn.shopify.com/s/files/1/1536/4459/products/KayeBlegvad_Blankets_Comets_1024x1024.png?v=1604075279",
+    "https://cdn.shopify.com/s/files/1/1536/4459/products/KayeBlegvad_Blankets_Sunscape_1024x1024.png?v=1604075061"
 ];
 
 let Settings = {
