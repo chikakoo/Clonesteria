@@ -21,12 +21,14 @@
         <script type="text/javascript" src="Javascript/UI/modalPopup.js"></script>
         <script type="text/javascript" src="Javascript/UI/gameUI.js"></script>
         <script type="text/javascript" src="Javascript/UI/reroll.js"></script>
+        <script type="text/javascript" src="Javascript/UI/choicePreview.js"></script>
         <!-- <link rel="icon" href="" type="image/icon type"> -->
         <link rel="stylesheet" href="Styles/styles.css">
         <link rel="stylesheet" href="Styles/lobby.css">
         <link rel="stylesheet" href="Styles/modalPopup.css">
         <link rel="stylesheet" href="Styles/gameUI.css">
         <link rel="stylesheet" href="Styles/suspect.css">
+        <link rel="stylesheet" href="Styles/choicePreview.css">
 	</head>
 
         <body oncontextmenu="return false" onload="Main.initialize()">
@@ -64,6 +66,13 @@
                         </div>
                 </div>
 
+                <div id="choicePreview" class="nodisp" onclick="ChoicePreview.hide()">
+                        <div id="previewContent">
+                                <div id="previewHeaders"></div>
+                                <div id="previewChoices"></div>
+                        </div>
+                </div>
+
                 <div id="game" class="nodisp">
                         <div id="topBar">
                                 <div id="psychicContainer"></div>
@@ -74,6 +83,7 @@
                                         Send Choice
                                 </div>
                                 <div class="flex-spacer"></div>
+                                <div id="previewButton" class="nodisp" onclick="ChoicePreview.show()">Show Answers</div>
                                 <div id="rerolls" onclick="Reroll.onRerollClicked()"></div>
                         </div>
                         

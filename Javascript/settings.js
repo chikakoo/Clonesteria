@@ -44,7 +44,8 @@ let Settings = {
     numberOfRerolls: 3,
     numberOfVisionCards: 8,
     numberOfChoices: 5,
-    numberOfPsychics: 2, //TODO: this isn't really used where it should be
+    numberOfFinalRoundChoices: 4, // MUST be <= numberOfChoices! 
+    numberOfPsychics: 2, // MUST be <= number of choices //TODO: this isn't really used where it should be
     visionCardDeckSize: 100,
     useStories: false // As opposed to weapons
 };

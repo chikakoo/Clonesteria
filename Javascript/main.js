@@ -83,6 +83,7 @@ let Main = {
         await VisionCardDeck.reset();
         ChoiceHistory.reset();
         await Choices.reset();
+        ChoicePreview.reset();
         Reroll.reset();
 
         SocketClient.gameStart(Lobby.getOtherPlayerType(), Choices.choices);
@@ -101,6 +102,7 @@ let Main = {
             await VisionCardDeck.reset();
             ChoiceHistory.reset();
             await Choices.reset();
+            ChoicePreview.reset();
             Reroll.reset();
             VisionCardHistory.history = Settings.debug.startingVisionCardHistory;
             ChoiceHistory.history = Settings.debug.startingChoiceHistory;

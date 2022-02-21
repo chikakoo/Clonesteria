@@ -312,8 +312,6 @@ let GameUI = {
                 addCssClass(choiceElement, "already-chosen");
             }
 
-            let choiceUrl = choice.url ? choice.url : choice.urls[0]; //TODO: rework this and the big image to display correctly
-
             choiceElement.onclick = function() {
                 let wasAlreadyChosen = ChoiceHistory.checkIfInHistory(_this.selectedPsychicId, round, choice.id);
 

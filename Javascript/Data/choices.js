@@ -137,12 +137,16 @@ let Choices = {
     /**
      * Creates a div based on the given choice
      * @param {Any} choice - the choice
-     * @param {String} elementId - the id to assign the element
+     * @param {String} elementId - the id to assign the element - skips this if null
      * @return - the created div
      */
     createBaseChoiceElement: function(choice, elementId) {
         let choiceElement = dce("div", "choice");
-        choiceElement.id = elementId;
+
+        if (elementId) {
+            choiceElement.id = elementId;
+        }
+        
         if (choice.url) {
             choiceElement.style["backgroundImage"] = `url("${choice.url}")`;
         } else if (choice.urls && choice.urls.length > 0) {
