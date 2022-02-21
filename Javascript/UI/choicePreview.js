@@ -28,7 +28,7 @@ let ChoicePreview = {
         let previewHeaders = document.getElementById("previewHeaders");
         for (let i = 0; i < Settings.numberOfPsychics; i++) {
             let headerElement = dce("div", "choice-preview-header");
-            headerElement.innerText = `Psychic ${i}`;
+            headerElement.innerText = `Psychic ${i + 1}`;
             previewHeaders.appendChild(headerElement);
         }
     },
@@ -39,17 +39,11 @@ let ChoicePreview = {
     _addChoiceImages: function() {
         let previewChoices = document.getElementById("previewChoices");
         Object.values(Choices.choices).forEach(function(choices) {
-            let psychicChoices = choices.filter(choice => choice.answer > -1)
-                .sort((a, b) => (a.answer > b.answer) ? 1 : -1);
-            let otherChoices = choices.filter(choice => choice.answer < 0);
-            let sortedChoices = psychicChoices.concat(otherChoices);
-
             let roundContainer = dce("div", "choice-round-container")
             previewChoices.appendChild(roundContainer);
 
+            let sortedChoices = Choices.getChoicesForFinalRound(choices, true);
             sortedChoices.forEach(function(choice, index) {
-                if (index > Settings.numberOfFinalRoundChoices - 1) { return; }
-
                 let choiceElement = Choices.createBaseChoiceElement(choice);
                 roundContainer.appendChild(choiceElement);
             });

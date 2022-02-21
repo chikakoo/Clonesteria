@@ -29,10 +29,6 @@ let GameUI = {
      * Starts the game at the passed in round
      */
     startRound: function() {
-        hideElement(Main.preRoomJoinElement);
-        hideElement(Main.roomLobbyElement);
-        showElement(Main.gameElement);
-
         this._playerType = Main.player.type;
         this.selectedPsychicId = Object.keys(Main.player.psychics)[0];
 
@@ -69,7 +65,11 @@ let GameUI = {
                     _this._initializeUIForSelectedPsychic();
                 }
             }
+
+            let psychicRoundNumber = dce("div", "psychic-round-number");
+            psychicRoundNumber.innerText = Main.getPsychicRound(id);
             
+            psychicButton.appendChild(psychicRoundNumber);
             psychicContainer.appendChild(psychicButton);
         });
     },
@@ -165,8 +165,13 @@ let GameUI = {
         let _this = this;
         VisionCardDeck.currentCards.forEach(function(card) {
             let visionCard = dce("div", "vision-card");
+            visionCard.draggable = "true";
             visionCard.id = _this._getIdForVisionCard(card.id);
             visionCard.style["backgroundImage"] = `url("${card.url}")`;
+
+            visionCard.ondragstart = function(event) {
+                event.dataTransfer.setData("text/plain", card.id);
+            }
 
             visionCard.onclick = function() {
                 if (!Reroll.rerolling) {
@@ -177,11 +182,11 @@ let GameUI = {
                 }
             }
 
-            if (_this._cardIdsToSend[_this.selectedPsychicId].includes(card.id)) {
+            if (!FinalRoundUI.isActive && _this._cardIdsToSend[_this.selectedPsychicId].includes(card.id)) {
                 addCssClass(visionCard, "selected-for-sending");
             }
 
-            visionCard.oncontextmenu = function() {
+            visionCard.ondblclick = function() {
                 if (!Reroll.rerolling && !_this.didSelectedPsychicReceiveVisionCards()) {
                     _this._addOrRemoveSelectedCardIDFormArray(
                         card.id, visionCard, _this._cardIdsToSend[_this.selectedPsychicId], "selected-for-sending");
@@ -255,13 +260,12 @@ let GameUI = {
      * @param {HTMLElement} element - the vision card element
      * @returns The ID of the card
      */
-    _getIdFromVisonCardElement: function(element) {
+    getIdFromVisonCardElement: function(element) {
         return Number(element.id.split("-")[1]);
     },
 
     /**
      * Shows the history of vision cards sent to them
-     * TODO: create a history object and display it here
      */
      refreshVisionCardsForPsychic: function() {
         let visionCardsContainer = document.getElementById("visionCards");
@@ -295,10 +299,12 @@ let GameUI = {
     /**
      * Shows the possible answers for the round
      * Shows the ghost the correct answer
-     * 
-     * TODO: also show the ghost what the psychic actually answered!
      */
     refreshChoices: function() {
+        if (Main.isPsychicAtEnd(this.selectedPsychicId)) {
+            return;
+        }
+
         let choicesContainer = document.getElementById("choices");
         choicesContainer.innerHTML = "";
 
@@ -308,16 +314,13 @@ let GameUI = {
         choices.forEach(function(choice) {
             let choiceElement = Choices.createBaseChoiceElement(choice, _this._getIdForChoice(choice.id));
 
-            if (_this._shouldDisableChoice(round, choice)) {
+            let choiceDisabled = _this._shouldDisableChoice(round, choice);
+            if (choiceDisabled) {
                 addCssClass(choiceElement, "already-chosen");
             }
 
             choiceElement.onclick = function() {
-                let wasAlreadyChosen = ChoiceHistory.checkIfInHistory(_this.selectedPsychicId, round, choice.id);
-
-                if (_this.didSelectedPsychicSendChoice()) {
-                    // Don't do anything if we're done, just show the image that was clicked
-                } else if (_this._playerType === PlayerType.PSYCHIC && wasAlreadyChosen) { 
+                if (_this._playerType === PlayerType.PSYCHIC && choiceDisabled) {
                     if (_this._selectedAnswer) {
                         let selectedChoice = document.getElementById(_this._getIdForChoice(_this._selectedAnswer.id));
                         removeCssClass(selectedChoice, "choice-selected");
@@ -525,7 +528,8 @@ let GameUI = {
             Object.keys(Main.player.psychics).forEach(function(psychicId) {
                 let round = Main.getPsychicRound(psychicId);
                 let latestAnswer = ChoiceHistory.getLatestAnswer(psychicId, round);
-                let isCorrect = Choices.checkAnswer(psychicId, round, latestAnswer);
+                let isCorrect = Main.isPsychicAtEnd(psychicId) ||
+                    Choices.checkAnswer(psychicId, round, latestAnswer);
                 let resultsString = isCorrect
                     ? "CORRECT! :D"
                     : "INCORRECT! D:"

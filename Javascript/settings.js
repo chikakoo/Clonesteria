@@ -17,7 +17,7 @@ let StaticImages = [
 
 let Settings = {
     debug: {
-        enabled: true,
+        enabled: false,
         playerType: PlayerType.GHOST,
         //playerType: PlayerType.PSYCHIC,
         startingRound: 1, // (1 = suspect; 2 = location; 3 = weapon/story; 4 = final)
@@ -40,12 +40,13 @@ let Settings = {
             // }
         }
     },
+    startAtTheEnd: false,
     useStaticImages: true,
     numberOfRerolls: 3,
-    numberOfVisionCards: 8,
+    numberOfVisionCards: 7,
     numberOfChoices: 5,
     numberOfFinalRoundChoices: 4, // MUST be <= numberOfChoices! 
-    numberOfPsychics: 2, // MUST be <= number of choices //TODO: this isn't really used where it should be
+    numberOfPsychics: 2, // MUST be <= number of choices
     visionCardDeckSize: 100,
     useStories: false // As opposed to weapons
 };

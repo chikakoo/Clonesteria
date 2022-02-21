@@ -20,6 +20,7 @@
         <script type="text/javascript" src="Javascript/Data/choiceHistory.js"></script>
         <script type="text/javascript" src="Javascript/UI/modalPopup.js"></script>
         <script type="text/javascript" src="Javascript/UI/gameUI.js"></script>
+        <script type="text/javascript" src="Javascript/UI/finalRoundUI.js"></script>
         <script type="text/javascript" src="Javascript/UI/reroll.js"></script>
         <script type="text/javascript" src="Javascript/UI/choicePreview.js"></script>
         <!-- <link rel="icon" href="" type="image/icon type"> -->
@@ -29,6 +30,7 @@
         <link rel="stylesheet" href="Styles/gameUI.css">
         <link rel="stylesheet" href="Styles/suspect.css">
         <link rel="stylesheet" href="Styles/choicePreview.css">
+        <link rel="stylesheet" href="Styles/finalRoundUI.css">
 	</head>
 
         <body oncontextmenu="return false" onload="Main.initialize()">
@@ -76,9 +78,7 @@
                 <div id="game" class="nodisp">
                         <div id="topBar">
                                 <div id="psychicContainer"></div>
-                                <div id="sendVisionCardsButton" onclick="GameUI.onSendVisionCardsClicked()" class="nodisp">
-                                        Send Cards
-                                </div>
+                                <div id="finalRoundPsychicContainer" class="nodisp"></div>
                                 <div id="sendChoiceButton" onclick="GameUI.onSendChoiceClicked()" class="nodisp">
                                         Send Choice
                                 </div>
@@ -90,7 +90,21 @@
                         <div id="middleContainer">
                                 <div id="choiceDisplay"></div>
                                 <div id="visionCardDisplay"></div>
+
+                                <div id="finalRoundSelections" class="nodisp">
+                                        <div id="finalRoundSelectionDisplay">
+                                                <div id="finalRoundSelection1"></div>
+                                                <div id="finalRoundSelection2"></div>
+                                                <div id="finalRoundSelection3"></div>
+                                        </div>
+                                        <div id="finalRoundVisionCards"></div>
+                                        <div id="finalRoundSubmit" onclick="FinalRoundUI.onSubmit()">Submit!</div>
+                                        <div id="returnToLobby" onclick="FinalRoundUI.onReturnToLobbyClicked()">To Lobby</div>
+                                </div>
                                 <div id="visionCards"></div>
+                                <div id="sendVisionCardsButton" onclick="GameUI.onSendVisionCardsClicked()" class="nodisp">
+                                        Send Cards
+                                </div>
                         </div>
 
                         <div id="choices"></div>

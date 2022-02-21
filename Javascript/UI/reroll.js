@@ -41,7 +41,10 @@ let Reroll = {
      * Does not allow the psychic to enter this state
      */
     onRerollClicked: async function() {
-        if (Main.player.type !== PlayerType.GHOST || GameUI.didSelectedPsychicReceiveVisionCards() || this.rerolls <= 0) {
+        let disallowFromGameState = FinalRoundUI.isActive
+            ? FinalRoundUI.didGhostSendVisions
+            : GameUI.didSelectedPsychicReceiveVisionCards();
+        if (Main.player.type !== PlayerType.GHOST || disallowFromGameState || this.rerolls <= 0) {
             this.rerolling = false;
             return;
         }
@@ -62,8 +65,15 @@ let Reroll = {
 
         
         this.rerolling = !this.rerolling;
-        GameUI.removeSelectedCardsToSend(this.selectedCardIds);
+
+        if (FinalRoundUI.isActive) {
+            FinalRoundUI.removeRerolledCards(this.selectedCardIds);
+        } else {
+            GameUI.removeSelectedCardsToSend(this.selectedCardIds);
+        }
+
         GameUI.refreshVisionCardsForGhost();
+
         this.selectedCardIds = [];
         this.refreshText(this.rerolls);
     }

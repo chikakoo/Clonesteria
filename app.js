@@ -1,5 +1,4 @@
 /**
- * **TODO: Actually do this - this is copied from the widget game
  * Host will set isClient to FALSE when creating a room
  * When someone joins, isClient will be changed to TRUE only for them!
  * ONLY the host will have the "Start" button be active (and only when there's 2 players)
@@ -99,10 +98,20 @@
         client.to(roomName).broadcast.emit('receive_rerolls_from_ghost', rerolls);
     });
 
+    client.on('send_final_visions_to_psychic', function(roomName, visions, finalAnswer) {
+        console.log(`Submitting final answer: ${finalAnswer}`);
+        client.to(roomName).broadcast.emit('receive_final_visions_from_psychic', visions, finalAnswer);
+    }),
+
     // ---- Psychic communicating with Ghost ---- //
     client.on('send_choice_to_ghost', function(roomName, psychicId, round, choiceId) {
         console.log(`Recevied choice from psychic, ID|Round|ChoiceID: ${psychicId}|${round}|${choiceId}`);
         client.to(roomName).broadcast.emit('receive_choice_from_psychic', psychicId, round, choiceId);
+    });
+
+    client.on('submit_final_answer_to_ghost', function(roomName, wasGameWon) {
+        console.log(`Submitting final answer - was the game won? ${wasGameWon}`);
+        client.to(roomName).broadcast.emit('receive_final_answer_from_ghost', wasGameWon);
     });
  });
  

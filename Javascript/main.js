@@ -20,7 +20,6 @@ let Main = {
      *       Round 3: Weapon/Story
      *       Round 4: Final
      *   - state: either ghostState or psychicState
-     *   - TODO: what cards to display - vision cards/answer for ghosts, the choices for psychics and ghosts, etc.
      */
     player: {},
 
@@ -79,12 +78,7 @@ let Main = {
      */
     onStartGameClicked: async function() {
         //TODO: move these resets to a post-game place
-        VisionCardHistory.reset();
-        await VisionCardDeck.reset();
-        ChoiceHistory.reset();
         await Choices.reset();
-        ChoicePreview.reset();
-        Reroll.reset();
 
         SocketClient.gameStart(Lobby.getOtherPlayerType(), Choices.choices);
         await this.gameStart(Lobby.selectedPlayerType);
@@ -92,18 +86,18 @@ let Main = {
 
     /**
      * Starts the game
-     * TODO: when images and such are decided, this is where they would be set/sent across!
      */
     gameStart: async function(playerType) {
+        VisionCardHistory.reset();
+        await VisionCardDeck.reset();
+        ChoiceHistory.reset();
+        ChoicePreview.reset();
+        Reroll.reset();
+
         this.player = this._initializePlayer(playerType); 
 
         if (Settings.debug.enabled) {
-            VisionCardHistory.reset();
-            await VisionCardDeck.reset();
-            ChoiceHistory.reset();
             await Choices.reset();
-            ChoicePreview.reset();
-            Reroll.reset();
             VisionCardHistory.history = Settings.debug.startingVisionCardHistory;
             ChoiceHistory.history = Settings.debug.startingChoiceHistory;
         }
@@ -153,7 +147,18 @@ let Main = {
      * @param {Number} psychicId - the psychic id
      */
     advancePsychicRound: function(psychicId) {
-        this.player.psychics[psychicId].round++;
+        if (!this.isPsychicAtEnd(psychicId)) {
+            this.player.psychics[psychicId].round++;
+        }
+    },
+
+    /**
+     * Returns whether the psychic is at the final round
+     * @param {Number} psychicId - the psychic id
+     * @returns 
+     */
+    isPsychicAtEnd: function(psychicId) {
+        return this.player.psychics[psychicId].round > 3;
     },
 
     /**
@@ -178,14 +183,45 @@ let Main = {
      * Starts the round
      */
     nextRound: function() {
+        let areAllPsychicsDone = Object.keys(this.player.psychics)
+            .every(psychicId => this.isPsychicAtEnd(psychicId));
+
+        if (areAllPsychicsDone || Settings.startAtTheEnd) {
+            this.startFinalRound();
+            return;
+        }
+
         this.currentRound++;
 
-        Object.values(this.player.psychics).forEach(function(psychic) {
-            psychic.state = States.Rounds.PRE_VISION
+        let _this = this;
+        Object.keys(this.player.psychics).forEach(function(psychicId) {
+            let psychic = _this.player.psychics[psychicId];
+            psychic.state = States.Rounds.PRE_VISION;
+
+            if (_this.isPsychicAtEnd(psychicId)) {
+                psychic.state = States.Rounds.POST_ANSWER;
+            }
         });
 
         SocketClient.refreshRerolls(Reroll.rerolls);
+
+        hideElement(this.preRoomJoinElement);
+        hideElement(this.roomLobbyElement);
+        showElement(this.gameElement);
         GameUI.startRound();
+    },
+
+    /**
+     * Starts the final round
+     */
+    startFinalRound: function() {
+        hideElement(this.preRoomJoinElement);
+        hideElement(this.roomLobbyElement);
+        showElement(this.gameElement);
+
+        FinalRoundUI.reset();
+        FinalRoundUI.show();
+        GameUI.refreshVisionCardsForGhost();
     },
 
     /**

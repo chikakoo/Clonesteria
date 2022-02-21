@@ -13,8 +13,6 @@ let Choices = {
      * }
      * 
      * The answer will be -1 if it's not the answer for any psychic
-     * 
-     * TODO: how to determine which sets of choices will be for the final round
      */
     choices: [],
 
@@ -120,6 +118,48 @@ let Choices = {
      */
     getChoices: function(round) {
         return this.choices[round - 1];
+    },
+
+    /**
+     * Gets the sorted choices for the final round
+     * @param {Array<Any>} choices - the array of unsorted choices
+     * @param {Boolean} includeLastSet - includes the last, unused set of choices
+     */
+    getChoicesForFinalRound: function(choices, includeLastSet) {
+        let psychicChoices = choices.filter(choice => choice.answer > -1)
+            .sort((a, b) => (a.answer > b.answer) ? 1 : -1);
+        let otherChoices = choices.filter(choice => choice.answer < 0);
+        let sortedChoices = psychicChoices.concat(otherChoices);
+
+        if (!includeLastSet) {
+            sortedChoices.splice(sortedChoices.length - 1, 1);
+        }
+        return sortedChoices;
+    },
+
+    /**
+     * Gets an array of the final round choices, sorted as follows:
+     * - [id] - [<imageData1>, ...]
+     * - ...
+     * @returns The above data
+     */
+    getFinalRoundChoicesForPsychics: function() {
+        let roundData = [];
+        const numberOfRounds = 3;
+        for (let i = 0; i < numberOfRounds; i++) {
+            roundData.push(this.getChoicesForFinalRound(this.choices[i]));
+        }
+
+        let psychicData = [];
+        const numberOfPsychics = 4;
+        for (let i = 0; i < numberOfPsychics; i++) {
+            for (let j = 0; j < numberOfRounds; j++) {
+                psychicData[i] = psychicData[i] || [];
+                psychicData[i].push(roundData[j][i]);
+            }
+        }
+
+        return psychicData;
     },
 
     /**

@@ -1,6 +1,7 @@
 #topBar {
     display: flex;
     flex-direction: row;
+    margin-bottom: 5px;
 }
 
 #psychicContainer {
@@ -19,6 +20,15 @@
     background-repeat: no-repeat;
     background-size: 85%;
     background-position: center center;
+}
+
+#psychicContainer > .psychic-button > .psychic-round-number {
+    position: absolute;
+    top: 40px;
+    bottom: 40px;
+    color: lime;
+    font-weight: bold;
+    -webkit-text-stroke: 1px black;
 }
 
 #psychicContainer > .psychic-button.selected-psychic {
@@ -61,21 +71,34 @@
 #middleContainer {
     display: flex;
     flex-direction: row;
-    align-items: center;
-    height: 420px;
 }
 
-#choiceDisplay:empty, #choiceDisplay > div, #visionCardDisplay {
+#choiceDisplay, #visionCardDisplay {
     border: 3px solid black;
-    background-size: cover;
-    background-position: center center;
-    background-repeat: no-repeat;
     height: 400px;
 }
 
-#choiceDisplay:empty, #choiceDisplay > div {
+#visionCardDisplay {
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+}
+
+#choiceDisplay {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 500px;
     margin-right: 5px;
+}
+
+#choiceDisplay > div {
+    width: 220px;
+    height: 176px;
+    transform: scale(2.28);
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
 }
 
 #visionCardDisplay {
@@ -100,7 +123,8 @@
 }
 
 #visionCards .vision-card {
-    margin: 3px;
+    margin: 0 3px 3px 3px;
+
     width: 100px;
     height: 125px;
     border: 2px solid black;
@@ -142,7 +166,8 @@
     border: 1px solid black;
     background-color: black;
     color: white;
-    margin-left: 5px;
+    margin-right: 5px;
+    float: right;
 }
 
 #sendVisionCardsButton:hover, #sendChoiceButton:hover {

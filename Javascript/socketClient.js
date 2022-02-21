@@ -99,12 +99,25 @@ SocketClient = {
             Reroll.refreshText(rerolls);
         });
 
+        this._socket.on('receive_final_visions_from_psychic', function(visions, finalAnswer) {
+            FinalRoundUI.didGhostSendVisions = true;
+            FinalRoundUI.receivedVisions = visions;
+            FinalRoundUI.finalAnswer = finalAnswer;
+
+            showElement(document.getElementById("finalRoundSubmit"));
+            FinalRoundUI.refreshVisionCardSelectionContainer();
+        });
+
         // ---- Ghost receiving messages from psychic ---- //
         this._socket.on('receive_choice_from_psychic', function(psychicId, round, choiceId) {
             ChoiceHistory.add(psychicId, round, choiceId);
             Main.setPsychicState(psychicId, States.Rounds.POST_ANSWER);
             GameUI.refreshChoices();
             GameUI.checkForRoundEnd();
+        });
+
+        this._socket.on('receive_final_answer_from_ghost', function(wasGameWon) {
+            FinalRoundUI.onGameEnd(wasGameWon);
         });
     },
 
@@ -214,10 +227,31 @@ SocketClient = {
         }
     },
 
+    /**
+     * Sends the final set of visions to the psychis
+     * @param {Array<Any>} visions - the array of visions
+     * @param {Number} finalAnswer - the final answer (the psychic id chosen by the ghost)
+     */
+    sendFinalVisionsToPsyshic: function(visions, finalAnswer) {
+        if (this._socket && Main.player.type === PlayerType.GHOST) {
+            this._socket.emit("send_final_visions_to_psychic", Main.roomName, visions, finalAnswer);
+        }
+    },
+
     // ---- Psychic communicating with Ghost ---- //
     sendChoiceToGhost: function(psychicId, round, choiceId) {
         if (this._socket && Main.player.type === PlayerType.PSYCHIC) {
             this._socket.emit("send_choice_to_ghost", Main.roomName, psychicId, round, choiceId);
+        }
+    },
+
+    /**
+     * Submits the final answer
+     * @param {Boolean} wasGameWon - whether the game was won
+     */
+    submitFinalAnswer: function(wasGameWon) {
+        if (this._socket && Main.player.type === PlayerType.PSYCHIC) {
+            this._socket.emit('submit_final_answer_to_ghost', Main.roomName, wasGameWon);
         }
     }
 };

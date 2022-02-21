@@ -60,5 +60,14 @@ let VisionCardDeck = {
      */
     _getNextCardFromDeck: async function() {
         return await UnsplashAPI.getVisionCardImage();
+    },
+
+    /**
+     * Returns the card in the current hand matching the given id
+     * @param {Number} id - the id of the card
+     * @returns The corresponding card, or undefined
+     */
+    getCurrentCardById: function(id) {
+        return this.currentCards.find(vision => vision.id === Number(id));
     }
 };
