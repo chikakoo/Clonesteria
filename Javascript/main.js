@@ -88,13 +88,13 @@ let Main = {
      * Starts the game
      */
     gameStart: async function(playerType) {
+        this.player = this._initializePlayer(playerType); 
+
         VisionCardHistory.reset();
         await VisionCardDeck.reset();
         ChoiceHistory.reset();
         ChoicePreview.reset();
         Reroll.reset();
-
-        this.player = this._initializePlayer(playerType); 
 
         if (Settings.debug.enabled) {
             await Choices.reset();
@@ -221,7 +221,12 @@ let Main = {
 
         FinalRoundUI.reset();
         FinalRoundUI.show();
-        GameUI.refreshVisionCardsForGhost();
+
+        if (this.player.type === PlayerType.GHOST) {
+            GameUI.refreshVisionCardsForGhost();
+        } else {
+            document.getElementById("visionCards").innerHTML = "";
+        }
     },
 
     /**

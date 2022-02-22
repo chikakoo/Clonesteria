@@ -113,6 +113,11 @@ let FinalRoundUI = {
                     
                     _this._fillChoiceCards(data);
                 }
+
+                let isGhostAndFinalSelection = _this.didGhostSendVisions && Main.player.type === PlayerType.GHOST && index === _this.finalAnswer;
+                if (isGhostAndFinalSelection) {
+                    addCssClass(psychicChoice, "physic-selected");
+                }
             });
         });
     },
@@ -235,7 +240,7 @@ let FinalRoundUI = {
      */
     _submitVisions: function(visions) {
         hideElement(document.getElementById("finalRoundSubmit"));
-        SocketClient.sendFinalVisionsToPsyshic(visions, this._selectedPsychicId);
+        SocketClient.sendFinalVisionsToPsyshic(visions.shuffle(), this._selectedPsychicId);
         this.finalAnswer = this._selectedPsychicId;
         this.didGhostSendVisions = true;
     },

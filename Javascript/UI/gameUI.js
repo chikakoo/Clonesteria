@@ -62,6 +62,11 @@ let GameUI = {
             psychicButton.onclick = function() {
                 if (_this.selectedPsychicId !== id) {
                     _this.selectedPsychicId = id;
+                    
+                    if (Main.player.type === PlayerType.PSYCHIC) {
+                        _this.clearVisionCardDisplay();
+                    }
+
                     _this._initializeUIForSelectedPsychic();
                 }
             }
@@ -244,6 +249,14 @@ let GameUI = {
      _showImageForVisionCardDisplay: function(imageUrl) {
         let visionCardDisplay = document.getElementById("visionCardDisplay");
         visionCardDisplay.style["backgroundImage"] = `url("${imageUrl}")`;
+    },
+
+    /**
+     * Clears the visionc ard display
+     */
+    clearVisionCardDisplay: function() {
+        let visionCardDisplay = document.getElementById("visionCardDisplay");
+        visionCardDisplay.style["backgroundImage"] = "";
     },
 
     /**
@@ -459,6 +472,7 @@ let GameUI = {
         SocketClient.sendVisionsToPsychic(this.selectedPsychicId, round, attempt, cardsToSend);
 
         Main.setPsychicState(this.selectedPsychicId, States.Rounds.POST_VISION);
+        this.clearVisionCardDisplay();
         this.refreshVisionCardsForGhost();
     },
 

@@ -72,6 +72,7 @@ let Reroll = {
             GameUI.removeSelectedCardsToSend(this.selectedCardIds);
         }
 
+        GameUI.clearVisionCardDisplay();
         GameUI.refreshVisionCardsForGhost();
 
         this.selectedCardIds = [];
